@@ -78,7 +78,9 @@ class GoFileUploader:
         async with (
             ClientSession() as session,
             session.put(
-                "https://api.gofile.io/createFolder", data=data, ssl=False
+                "https://api.gofile.io/createFolder",
+                data=data,
+                ssl=False,
             ) as resp,
         ):
             res = await resp.json()
@@ -92,7 +94,7 @@ class GoFileUploader:
                 "file": (ospath.basename(file), open(file, "rb"), guess_type(file)),
                 "token": self._token,
                 "folderId": parentfolderid,
-            }
+            },
         )
         monitor = MultipartEncoderMonitor(mpart, self._callback)
         resp = rpost(
@@ -112,7 +114,9 @@ class GoFileUploader:
             file_path = ospath.join(path, file)
             if await aiopath.isfile(file_path):
                 dl_url = await sync_to_async(
-                    self._upload_file, file_path, self._folderpathd[-1]
+                    self._upload_file,
+                    file_path,
+                    self._folderpathd[-1],
                 )
                 if len(file) == 1 and not self._listener.isGofile:
                     self._listener.isGofile = dl_url
@@ -133,7 +137,9 @@ class GoFileUploader:
         file_path = ospath.join(self._listener.dir, self._listener.name)
         if await aiopath.isfile(file_path):
             self._listener.isGofile = await sync_to_async(
-                self._upload_file, file_path, config_dict["GOFILEBASEFOLDER"]
+                self._upload_file,
+                file_path,
+                config_dict["GOFILEBASEFOLDER"],
             )
             return
         await self._upload_folder(file_path, config_dict["GOFILEBASEFOLDER"])
