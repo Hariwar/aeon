@@ -67,7 +67,8 @@ class TgUploader:
         self._start_time = time()
         self._is_cancelled = False
         self._thumb = self._listener.thumb or ospath.join(
-            "thumbnails", f"{self._listener.user_id}.jpg"
+            "thumbnails",
+            f"{self._listener.user_id}.jpg",
         )
         self._msgs_dict = {}
         self._is_corrupted = False
@@ -96,7 +97,7 @@ class TgUploader:
             for file_ in natsorted(files):
                 self._up_path = ospath.join(dirpath, file_)
                 if file_.lower().endswith(
-                    tuple(self._listener.extensionFilter)
+                    tuple(self._listener.extensionFilter),
                 ) or file_.startswith("Thumb"):
                     if not file_.startswith("Thumb"):
                         await clean_target(self._up_path)
@@ -120,7 +121,8 @@ class TgUploader:
                             x for v in self._media_dict.values() for x in v
                         ]
                         match = re_match(
-                            r".+(?=\.0*\d+$)|.+(?=\.part\d+\..+$)", self._up_path
+                            r".+(?=\.0*\d+$)|.+(?=\.part\d+\..+$)",
+                            self._up_path,
                         )
                         if not match or (
                             match and match.group(0) not in group_lists
@@ -129,7 +131,9 @@ class TgUploader:
                                 for subkey, msgs in list(value.items()):
                                     if len(msgs) > 1:
                                         await self._send_media_group(
-                                            msgs, subkey, key
+                                            msgs,
+                                            subkey,
+                                            key,
                                         )
                     self._last_msg_in_group = False
                     self._last_uploaded = 0
@@ -180,17 +184,21 @@ class TgUploader:
             await clean_unwanted(self._path)
         if total_files == 0:
             await self._listener.onUploadError(
-                f"No files to upload or in blocked list ({', '.join(self._listener.extensionFilter[2:])})!"
+                f"No files to upload or in blocked list ({', '.join(self._listener.extensionFilter[2:])})!",
             )
             return
         if total_files <= corrupted_files:
             await self._listener.onUploadError(
-                "Files Corrupted or unable to upload. Check logs!"
+                "Files Corrupted or unable to upload. Check logs!",
             )
             return
         LOGGER.info("Leech Completed: %s", self._listener.name)
         await self._listener.onUploadComplete(
-            None, self._size, self._msgs_dict, total_files, corrupted_files
+            None,
+            self._size,
+            self._msgs_dict,
+            total_files,
+            corrupted_files,
         )
 
     @retry(
@@ -219,7 +227,9 @@ class TgUploader:
             if not is_image and thumb is None:
                 file_name = ospath.splitext(file)[0]
                 thumb_path = ospath.join(
-                    self._path, "yt-dlp-thumb", f"{file_name}.jpg"
+                    self._path,
+                    "yt-dlp-thumb",
+                    f"{file_name}.jpg",
                 )
                 if await aiopath.isfile(thumb_path):
                     thumb = thumb_path
@@ -267,7 +277,8 @@ class TgUploader:
                         dirpath = ospath.join(dirpath, "copied_mltb")
                         await makedirs(dirpath, exist_ok=True)
                         new_path = ospath.join(
-                            dirpath, f"{ospath.splitext(file_)[0]}.mp4"
+                            dirpath,
+                            f"{ospath.splitext(file_)[0]}.mp4",
                         )
                         self._up_path = await copy(self._up_path, new_path)
                     else:
@@ -330,20 +341,22 @@ class TgUploader:
                 not self._is_cancelled
                 and self._media_group
                 and (self._send_msg.video or self._send_msg.document)
+            ) and (
+                match := re_match(
+                    r".+(?=\.0*\d+$)|.+(?=\.part\d+\..+$)",
+                    self._up_path,
+                )
             ):
-                if match := re_match(
-                    r".+(?=\.0*\d+$)|.+(?=\.part\d+\..+$)", self._up_path
-                ):
-                    subkey = match.group(0)
-                    if subkey in self._media_dict[key]:
-                        self._media_dict[key][subkey].append(self._send_msg)
-                    else:
-                        self._media_dict[key][subkey] = [self._send_msg]
-                    msgs = self._media_dict[key][subkey]
-                    if len(msgs) == 10:
-                        await self._send_media_group(msgs, subkey, key)
-                    else:
-                        self._last_msg_in_group = True
+                subkey = match.group(0)
+                if subkey in self._media_dict[key]:
+                    self._media_dict[key][subkey].append(self._send_msg)
+                else:
+                    self._media_dict[key][subkey] = [self._send_msg]
+                msgs = self._media_dict[key][subkey]
+                if len(msgs) == 10:
+                    await self._send_media_group(msgs, subkey, key)
+                else:
+                    self._last_msg_in_group = True
 
             if not self._thumb and thumb:
                 await clean_target(thumb)
@@ -357,7 +370,9 @@ class TgUploader:
             LOGGER.error("%s%s. Path: %s", err_type, err, self._up_path)
             if "Telegram says: [400" in str(err) and key != "documents":
                 LOGGER.error(
-                    "Retrying As Document. Path: %s", self._up_path, exc_info=True
+                    "Retrying As Document. Path: %s",
+                    self._up_path,
+                    exc_info=True,
                 )
                 return await self._upload_file(caption, file, True)
             raise err
@@ -410,7 +425,8 @@ class TgUploader:
                 name = get_base_name(file_)
                 ext = file_.split(name, 1)[1]
             elif match := re_match(
-                r".+(?=\..+\.0*\d+$)|.+(?=\.part\d+\..+$)", file_
+                r".+(?=\..+\.0*\d+$)|.+(?=\.part\d+\..+$)",
+                file_,
             ):
                 name = match.group(0)
                 ext = file_.split(name, 1)[1]
@@ -470,17 +486,22 @@ class TgUploader:
             caption = f"<b>▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n{self._listener.name}\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬</b>"
             if self._thumb and await aiopath.exists(self._thumb):
                 self._send_msg: Message = await bot.send_photo(
-                    self._leech_log, photo=self._thumb, caption=caption
+                    self._leech_log,
+                    photo=self._thumb,
+                    caption=caption,
                 )
             else:
                 self._send_msg: Message = await bot.send_message(
-                    self._leech_log, caption, disable_web_page_preview=True
+                    self._leech_log,
+                    caption,
+                    disable_web_page_preview=True,
                 )
             if config_dict["LEECH_INFO_PIN"]:
                 await self._send_msg.pin(both_sides=True)
         else:
             self._send_msg: Message = await bot.get_messages(
-                self._listener.message.chat.id, self._listener.mid
+                self._listener.message.chat.id,
+                self._listener.mid,
             )
             if not self._send_msg or not self._send_msg.chat:
                 self._send_msg = self._listener.message
@@ -524,7 +545,9 @@ class TgUploader:
                     outputs.remove(m)
         if outputs:
             msgs_list = await self._send_msg.reply_media_group(
-                media=inputs, quote=True, disable_notification=True
+                media=inputs,
+                quote=True,
+                disable_notification=True,
             )
             #    if self._send_pm:
             await self._copy_media_group(self._listener.user_id, msgs_list)
@@ -573,7 +596,9 @@ class TgUploader:
         if config_dict["SAVE_MESSAGE"] and self._listener.isSuperChat:
             self._buttons.button_data("Save Message", "save", "footer")
         for mode, link in zip(
-            ["Stream", "Download"], await gen_link(self._send_msg), strict=False
+            ["Stream", "Download"],
+            await gen_link(self._send_msg),
+            strict=False,
         ):
             if link:
                 self._buttons.button_link(
@@ -582,7 +607,8 @@ class TgUploader:
                     "header",
                 )
         self._send_msg = await bot.get_messages(
-            self._send_msg.chat.id, self._send_msg.id
+            self._send_msg.chat.id,
+            self._send_msg.id,
         )
         if (buttons := self._buttons.build_menu(2)) and (
             cmsg := await self._send_msg.edit_reply_markup(buttons)
@@ -595,11 +621,13 @@ class TgUploader:
             caption = self._caption_mode(msg.caption.split("\n")[0])
             if key == "videos":
                 input_media = InputMediaVideo(
-                    media=msg.video.file_id, caption=caption
+                    media=msg.video.file_id,
+                    caption=caption,
                 )
             else:
                 input_media = InputMediaDocument(
-                    media=msg.document.file_id, caption=caption
+                    media=msg.document.file_id,
+                    caption=caption,
                 )
             imlist.append(input_media)
         return imlist
