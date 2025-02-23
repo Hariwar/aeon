@@ -86,7 +86,8 @@ def bt_selection_buttons(id_: int):
         buttons.button_data("Pincode", f"btsel pin {gid} {pincode}")
     else:
         buttons.button_link(
-            "Select Files", f"{BASE_URL}/app/files/{id_}?pin_code={pincode}"
+            "Select Files",
+            f"{BASE_URL}/app/files/{id_}?pin_code={pincode}",
         )
     buttons.button_data("Done Selecting", f"btsel done {gid} {id_}")
     buttons.button_data("Cancel", f"btsel canc {gid} {id_}")
@@ -159,7 +160,7 @@ async def get_content_type(url):
             session.get(url, allow_redirects=True, ssl=False) as response,
         ):
             return response.headers.get("Content-Type"), response.headers.get(
-                "Content-Length"
+                "Content-Length",
             )
     except:
         return "", ""
@@ -196,7 +197,8 @@ def arg_parser(items, arg_base):
 
     if items[0] not in arg_base:
         index_link = next(
-            (i for i, part in enumerate(items) if part in arg_base), len(items)
+            (i for i, part in enumerate(items) if part in arg_base),
+            len(items),
         )
         link = items[:index_link] if index_link else items[:]
         link = " ".join(link).strip()
@@ -221,7 +223,7 @@ async def retry_function(attempt, func, *args, **kwargs):
             await sleep(0.3)
             attempt += 1
     raise Exception(
-        f"Failed to execute {func.__name__}, reached max total attempts {attempt}x!"
+        f"Failed to execute {func.__name__}, reached max total attempts {attempt}x!",
     )
 
 

@@ -27,7 +27,11 @@ if TYPE_CHECKING:
 
 
 async def add_aria2c_download(
-    listener: task.TaskListener, dpath: str, header: str, ratio: int, seed_time: int
+    listener: task.TaskListener,
+    dpath: str,
+    header: str,
+    ratio: int,
+    seed_time: int,
 ):
     a2c_opt = {**aria2_options}
     [a2c_opt.pop(k) for k in aria2c_global if k in aria2_options]
@@ -87,7 +91,10 @@ async def add_aria2c_download(
         SBUTTONS = bt_selection_buttons(gid)
         msg = f"<code>{name}</code>\n\n{listener.tag}, your download paused. Choose files then press <b>Done Selecting</b> button to start downloading."
         await sendingMessage(
-            msg, listener.message, config_dict["IMAGE_PAUSE"], SBUTTONS
+            msg,
+            listener.message,
+            config_dict["IMAGE_PAUSE"],
+            SBUTTONS,
         )
     if add_to_queue:
         await event.wait()

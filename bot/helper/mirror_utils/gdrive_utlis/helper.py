@@ -79,10 +79,12 @@ class GoogleDriveHelper:
             self.sa_number = len(json_files)
             self.sa_index = randrange(self.sa_number)
             LOGGER.info(
-                "Authorizing with %s service account", json_files[self.sa_index]
+                "Authorizing with %s service account",
+                json_files[self.sa_index],
             )
             credentials = service_account.Credentials.from_service_account_file(
-                f"accounts/{json_files[self.sa_index]}", scopes=self._OAUTH_SCOPE
+                f"accounts/{json_files[self.sa_index]}",
+                scopes=self._OAUTH_SCOPE,
             )
         elif ospath.exists(self.token_path):
             LOGGER.info("Authorize with %s", self.token_path)
@@ -224,7 +226,9 @@ class GoogleDriveHelper:
         if not config_dict["IS_TEAM_DRIVE"]:
             self.set_permission(file_id)
         LOGGER.info(
-            "Created G-Drive Folder:\nName: %s\nID: %s", file.get("name"), file_id
+            "Created G-Drive Folder:\nName: %s\nID: %s",
+            file.get("name"),
+            file_id,
         )
         return file_id
 
@@ -243,10 +247,10 @@ class GoogleDriveHelper:
         elif self.is_cloning:
             LOGGER.info("Cancelling Clone: %s", self.listener.name)
             await self.listener.onUploadError(
-                "Your clone has been stopped and cloned data has been deleted!"
+                "Your clone has been stopped and cloned data has been deleted!",
             )
         elif self.is_uploading:
             LOGGER.info("Cancelling Upload: %s", self.listener.name)
             await self.listener.onUploadError(
-                "Your upload has been stopped and uploaded data has been deleted!"
+                "Your upload has been stopped and uploaded data has been deleted!",
             )

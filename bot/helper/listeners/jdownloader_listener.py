@@ -39,7 +39,8 @@ async def _jd_listener():
                 break
             try:
                 packages = await sync_to_async(
-                    jdownloader.device.downloads.query_packages, [{"finished": True}]
+                    jdownloader.device.downloads.query_packages,
+                    [{"finished": True}],
                 )
             except:
                 continue

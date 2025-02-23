@@ -65,7 +65,7 @@ async def is_multi_streams(path):
                 "json",
                 "-show_streams",
                 path,
-            ]
+            ],
         )
         if res := result[1]:
             LOGGER.warning("Get Video Streams: %s", res)
@@ -97,7 +97,7 @@ async def get_media_info(path):
                 "json",
                 "-show_format",
                 path,
-            ]
+            ],
         )
         if res := result[1]:
             LOGGER.warning("Get Media Info: %s", res)
@@ -144,7 +144,8 @@ async def post_media_info(path: str, size: int, image=None, is_link=False):
 async def get_document_type(path):
     is_video = is_audio = is_image = False
     if path.endswith(tuple(ARCH_EXT)) or re_search(
-        r".+(\.|_)(rar|7z|zip|bin)(\.0*\d+)?$", path
+        r".+(\.|_)(rar|7z|zip|bin)(\.0*\d+)?$",
+        path,
     ):
         return is_video, is_audio, is_image
     mime_type = await sync_to_async(get_mime_type, path)
@@ -165,7 +166,7 @@ async def get_document_type(path):
                 "json",
                 "-show_streams",
                 path,
-            ]
+            ],
         )
         if res := result[1]:
             LOGGER.warning("Get Document Type: %s", res)
@@ -504,7 +505,7 @@ class FFProgress:
                 re_findall(
                     r"(frame|fps|size|time|bitrate|speed)\s*\=\s*(\S+)",
                     line.decode("utf-8"),
-                )
+                ),
             ):
                 if not self._duration:
                     self._duration = (await get_media_info(self.path))[0]
@@ -648,7 +649,9 @@ async def createArchive(listener, scr_path, dest_path, size, pswd, mpart=False):
             await clean_target(scr_path, True)
         return True
     LOGGER.error(
-        "%s. Unable to zip this path: %s", stderr.decode().strip(), scr_path
+        "%s. Unable to zip this path: %s",
+        stderr.decode().strip(),
+        scr_path,
     )
     return True
 
@@ -687,7 +690,7 @@ class GenSS:
                 "scale=1920:-1,tile=3x3",
                 self._images,
                 "-y",
-            ]
+            ],
         )
         if not await aiopath.exists(self._images):
             self._images = ""
@@ -738,7 +741,8 @@ class GenSS:
         if not self._images:
             self._error = "Failed generated screenshot, something wrong with url or not video in url!"
             LOGGER.info(
-                "Failed Generating Screenshot: %s", ospath.basename(self._path)
+                "Failed Generating Screenshot: %s",
+                ospath.basename(self._path),
             )
         await clean_target(self._ss_path)
 

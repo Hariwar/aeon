@@ -27,18 +27,17 @@ async def _onDownloadStarted(api, gid):
     if download.is_metadata:
         LOGGER.info("onDownloadStarted: %s METADATA", gid)
         await sleep(1)
-        if task := await getTaskByGid(gid):
-            if task.listener.select:
-                meta = await sendMessage(
-                    "<i>Downloading <b>Metadata</b>, please wait...</i>",
-                    task.listener.message,
-                )
-                while True:
-                    await sleep(0.5)
-                    if download.is_removed or download.followed_by_ids:
-                        await deleteMessage(meta)
-                        break
-                    download = download.live
+        if (task := await getTaskByGid(gid)) and task.listener.select:
+            meta = await sendMessage(
+                "<i>Downloading <b>Metadata</b>, please wait...</i>",
+                task.listener.message,
+            )
+            while True:
+                await sleep(0.5)
+                if download.is_removed or download.followed_by_ids:
+                    await deleteMessage(meta)
+                    break
+                download = download.live
         return
     LOGGER.info("onDownloadStarted: %s - Gid: %s", download.name, gid)
     task = None
@@ -53,7 +52,8 @@ async def _onDownloadStarted(api, gid):
             LOGGER.info("File/folder already in Drive!")
             task.listener.name = name
             await task.listener.onDownloadError(
-                "File/folder already in Drive!", file
+                "File/folder already in Drive!",
+                file,
             )
             await sync_to_async(api.remove, [download], force=True, files=True)
             return
@@ -63,7 +63,7 @@ async def _onDownloadStarted(api, gid):
             LOGGER.info("File/folder size over the limit size!")
             await gather(
                 task.listener.onDownloadError(
-                    f"{msg}. File/folder size is {get_readable_file_size(size)}."
+                    f"{msg}. File/folder size is {get_readable_file_size(size)}.",
                 ),
                 sync_to_async(api.remove, [download], force=True, files=True),
             )
@@ -89,7 +89,10 @@ async def _onDownloadComplete(api, gid):
                 SBUTTONS = bt_selection_buttons(new_gid)
                 msg = f"<code>{task.name()}</code>\n\n{task.listener.tag}, your download paused. Choose files then press <b>Done Selecting</b> button to start downloading."
                 await sendingMessage(
-                    msg, task.listener.message, config_dict["IMAGE_PAUSE"], SBUTTONS
+                    msg,
+                    task.listener.message,
+                    config_dict["IMAGE_PAUSE"],
+                    SBUTTONS,
                 )
     elif download.is_torrent:
         if task := await getTaskByGid(gid):
@@ -97,7 +100,7 @@ async def _onDownloadComplete(api, gid):
                 LOGGER.info("Cancelling Seed: %s onDownloadComplete")
                 await gather(
                     task.listener.onUploadError(
-                        f"Seeding stopped with Ratio {task.ratio()} ({task.seeding_time()})"
+                        f"Seeding stopped with Ratio {task.ratio()} ({task.seeding_time()})",
                     ),
                     sync_to_async(api.remove, [download], force=True, files=True),
                 )
@@ -123,14 +126,16 @@ async def _onBtDownloadComplete(api, gid):
     if task.listener.select:
         res = download.files
         await gather(
-            *[clean_target(file_o.path) for file_o in res if not file_o.selected]
+            *[clean_target(file_o.path) for file_o in res if not file_o.selected],
         )
         await clean_unwanted(download.dir)
 
     if task.listener.seed:
         try:
             await sync_to_async(
-                api.set_options, {"max-upload-limit": "0"}, [download]
+                api.set_options,
+                {"max-upload-limit": "0"},
+                [download],
             )
         except Exception as e:
             LOGGER.error(
@@ -152,7 +157,7 @@ async def _onBtDownloadComplete(api, gid):
                 LOGGER.info("Cancelling Seed: %s", download.name)
                 await gather(
                     task.listener.onUploadError(
-                        f"Seeding stopped with Ratio {task.ratio()} ({task.seeding_time()})"
+                        f"Seeding stopped with Ratio {task.ratio()} ({task.seeding_time()})",
                     ),
                     sync_to_async(api.remove, [download], force=True, files=True),
                 )
@@ -160,7 +165,10 @@ async def _onBtDownloadComplete(api, gid):
             async with task_dict_lock:
                 if task.listener.mid not in task_dict:
                     await sync_to_async(
-                        api.remove, [download], force=True, files=True
+                        api.remove,
+                        [download],
+                        force=True,
+                        files=True,
                     )
                     return
                 task_dict[task.listener.mid] = Aria2Status(task.listener, gid, True)

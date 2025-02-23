@@ -43,7 +43,7 @@ async def stop_duplicate_check(listener):
             name = None
     if name:
         if not listener.isRename and await aiopath.isfile(
-            ospath.join(listener.dir, name)
+            ospath.join(listener.dir, name),
         ):
             name = presuf_remname_name(listener.user_dict, name)
         count, file = await sync_to_async(

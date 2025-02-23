@@ -25,7 +25,9 @@ if TYPE_CHECKING:
 async def add_gd_download(listener: task.TaskListener, path: str):
     drive = gdCount()
     name, mime_type, size, _, _ = await sync_to_async(
-        drive.count, listener.link, listener.user_id
+        drive.count,
+        listener.link,
+        listener.user_id,
     )
     if not mime_type:
         await listener.onDownloadError(name)
@@ -42,7 +44,7 @@ async def add_gd_download(listener: task.TaskListener, path: str):
     if msg := await check_limits_size(listener, size):
         LOGGER.info("File/folder size over the limit size!")
         await listener.onDownloadError(
-            f"{msg}. File/folder size is {get_readable_file_size(size)}."
+            f"{msg}. File/folder size is {get_readable_file_size(size)}.",
         )
         return
 
@@ -77,6 +79,8 @@ async def add_gd_download(listener: task.TaskListener, path: str):
     await sync_to_async(drive.download)
     if listener.isSharer:
         msg = await sync_to_async(
-            gdDelete().deletefile, listener.link, listener.user_id
+            gdDelete().deletefile,
+            listener.link,
+            listener.user_id,
         )
         LOGGER.info("%s (Sharer Link): %s", msg, listener.link)

@@ -170,7 +170,8 @@ def get_readable_message(
         page_no = pages - (abs(page_no) % pages)
     start_position = (page_no - 1) * STATUS_LIMIT
     for index, task in enumerate(
-        tasks[start_position : STATUS_LIMIT + start_position], start=1
+        tasks[start_position : STATUS_LIMIT + start_position],
+        start=1,
     ):
         tstatus = task.status()
         msg += f"<b>{index + start_position}.</b> <code>{escape(str(task.name())) or 'N/A'}</code>"

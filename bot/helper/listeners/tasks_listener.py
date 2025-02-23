@@ -112,7 +112,9 @@ class TaskListener(TaskConfig):
             and DATABASE_URL
         ):
             await DbManager().add_incomplete_task(
-                self.message.chat.id, self.message.link, self.tag
+                self.message.chat.id,
+                self.message.link,
+                self.tag,
             )
 
     async def onDownloadComplete(self):
@@ -145,7 +147,8 @@ class TaskListener(TaskConfig):
                     item_path = ospath.join(spath, item)
                     if item in await listdir(des_path):
                         await move(
-                            item_path, ospath.join(des_path, f"{self.mid}-{item}")
+                            item_path,
+                            ospath.join(des_path, f"{self.mid}-{item}"),
                         )
                     else:
                         await move(item_path, ospath.join(des_path, item))
@@ -287,7 +290,14 @@ class TaskListener(TaskConfig):
             )
 
     async def onUploadComplete(
-        self, link, size, files, folders, mime_type, rclonePath="", dir_id=""
+        self,
+        link,
+        size,
+        files,
+        folders,
+        mime_type,
+        rclonePath="",
+        dir_id="",
     ):
         if (
             self.isSuperChat
@@ -365,16 +375,24 @@ class TaskListener(TaskConfig):
             ONCOMPLETE_LEECH_LOG = config_dict["ONCOMPLETE_LEECH_LOG"]
             if not files:
                 uploadmsg = await sendingMessage(
-                    msg, self.message, images, buttons.build_menu(2)
+                    msg,
+                    self.message,
+                    images,
+                    buttons.build_menu(2),
                 )
                 if self.user_dict.get("enable_pm") and self.isSuperChat:
                     if reply_to and is_media(reply_to):
                         await sendMedia(
-                            msg, self.user_id, reply_to, buttons_scr.build_menu(2)
+                            msg,
+                            self.user_id,
+                            reply_to,
+                            buttons_scr.build_menu(2),
                         )
                     else:
                         await copyMessage(
-                            self.user_id, uploadmsg, buttons_scr.build_menu(2)
+                            self.user_id,
+                            uploadmsg,
+                            buttons_scr.build_menu(2),
                         )
                 if (chat_id := config_dict["LEECH_LOG"]) and ONCOMPLETE_LEECH_LOG:
                     await copyMessage(chat_id, uploadmsg, buttons_scr.build_menu(2))
@@ -386,7 +404,9 @@ class TaskListener(TaskConfig):
                     limit.text(fmsg + msg)
                     if len(msg + fmsg) - limit.total > 4090:
                         uploadmsg = await sendMessage(
-                            msg + fmsg, self.message, buttons.build_menu(2)
+                            msg + fmsg,
+                            self.message,
+                            buttons.build_menu(2),
                         )
                         await sleep(1)
                         if self.user_dict.get("enable_pm") and self.isSuperChat:
@@ -408,7 +428,9 @@ class TaskListener(TaskConfig):
                             chat_id := config_dict["LEECH_LOG"]
                         ) and ONCOMPLETE_LEECH_LOG:
                             await copyMessage(
-                                chat_id, uploadmsg, buttons_scr.build_menu(2)
+                                chat_id,
+                                uploadmsg,
+                                buttons_scr.build_menu(2),
                             )
                         if self.isSuperChat and (
                             stime := config_dict[
@@ -416,18 +438,23 @@ class TaskListener(TaskConfig):
                             ]
                         ):
                             bot_loop.create_task(
-                                auto_delete_message(uploadmsg, stime=stime)
+                                auto_delete_message(uploadmsg, stime=stime),
                             )
                         fmsg = ""
                 if fmsg != "":
                     limit.text(msg + fmsg)
                     if len(msg + fmsg) - limit.total > 1024:
                         uploadmsg = await sendMessage(
-                            msg + fmsg, self.message, buttons.build_menu(2)
+                            msg + fmsg,
+                            self.message,
+                            buttons.build_menu(2),
                         )
                     else:
                         uploadmsg = await sendingMessage(
-                            msg + fmsg, self.message, images, buttons.build_menu(2)
+                            msg + fmsg,
+                            self.message,
+                            images,
+                            buttons.build_menu(2),
                         )
                     if self.user_dict.get("enable_pm") and self.isSuperChat:
                         if reply_to and is_media(reply_to):
@@ -439,13 +466,17 @@ class TaskListener(TaskConfig):
                             )
                         else:
                             await copyMessage(
-                                self.user_id, uploadmsg, buttons_scr.build_menu(2)
+                                self.user_id,
+                                uploadmsg,
+                                buttons_scr.build_menu(2),
                             )
                     if (
                         chat_id := config_dict["LEECH_LOG"]
                     ) and ONCOMPLETE_LEECH_LOG:
                         await copyMessage(
-                            chat_id, uploadmsg, buttons_scr.build_menu(2)
+                            chat_id,
+                            uploadmsg,
+                            buttons_scr.build_menu(2),
                         )
                 if STICKERID_LEECH := config_dict["STICKERID_LEECH"]:
                     await sendSticker(STICKERID_LEECH, self.message)
@@ -473,7 +504,9 @@ class TaskListener(TaskConfig):
             if link or rclonePath:
                 if self.isGofile:
                     golink = await sync_to_async(
-                        short_url, self.isGofile, self.user_id
+                        short_url,
+                        self.isGofile,
+                        self.user_id,
                     )
                     buttons.button_link("GoFile Link", golink)
                 if link:
@@ -505,12 +538,15 @@ class TaskListener(TaskConfig):
                         await sync_to_async(short_url, share_url, self.user_id),
                     )
                     if stream_link := get_stream_link(
-                        mime_type, f"{remote}/{url_path}"
+                        mime_type,
+                        f"{remote}/{url_path}",
                     ):
                         buttons.button_link(
                             "Stream Link",
                             await sync_to_async(
-                                short_url, stream_link, self.user_id
+                                short_url,
+                                stream_link,
+                                self.user_id,
                             ),
                         )
                 if not rclonePath:
@@ -525,12 +561,16 @@ class TaskListener(TaskConfig):
                         share_url = f"{INDEX_URL}/{url_path}"
                         if mime_type == "Folder":
                             share_url = await sync_to_async(
-                                short_url, f"{share_url}/", self.user_id
+                                short_url,
+                                f"{share_url}/",
+                                self.user_id,
                             )
                             buttons.button_link("Index Link", share_url)
                         else:
                             share_url = await sync_to_async(
-                                short_url, share_url, self.user_id
+                                short_url,
+                                share_url,
+                                self.user_id,
                             )
                             buttons.button_link("Index Link", share_url)
                             if config_dict["VIEW_LINK"]:
@@ -568,7 +608,10 @@ class TaskListener(TaskConfig):
             if config_dict["SAVE_MESSAGE"] and self.isSuperChat:
                 buttons.button_data("Save Message", "save", "footer")
             uploadmsg = await sendingMessage(
-                msg, self.message, images, buttons.build_menu(2)
+                msg,
+                self.message,
+                images,
+                buttons.build_menu(2),
             )
             if STICKERID_MIRROR := config_dict["STICKERID_MIRROR"]:
                 await sendSticker(STICKERID_MIRROR, self.message)
@@ -621,7 +664,7 @@ class TaskListener(TaskConfig):
             stime := config_dict["AUTO_DELETE_UPLOAD_MESSAGE_DURATION"]
         ):
             bot_loop.create_task(
-                auto_delete_message(self.message, uploadmsg, reply_to, stime=stime)
+                auto_delete_message(self.message, uploadmsg, reply_to, stime=stime),
             )
 
     async def onDownloadError(self, error, listfile=None):
@@ -666,7 +709,8 @@ class TaskListener(TaskConfig):
                 await sendCustom(msg, chat_id)
         if len(error) > (1000 if config_dict["ENABLE_IMAGE_MODE"] else 3800):
             err_msg = await sync_to_async(
-                TelePost("Download Error").create_post, error.replace("\n", "<br>")
+                TelePost("Download Error").create_post,
+                error.replace("\n", "<br>"),
             )
             err_msg = f'<a href="{err_msg}"><b>Details</b></a>'
         else:
@@ -686,7 +730,9 @@ class TaskListener(TaskConfig):
             await sendFile(self.message, listfile, msg, config_dict["IMAGE_HTML"])
         else:
             await sendingMessage(
-                msg, self.message, choice(config_dict["IMAGE_COMPLETE"].split())
+                msg,
+                self.message,
+                choice(config_dict["IMAGE_COMPLETE"].split()),
             )
 
         if (
@@ -718,7 +764,7 @@ class TaskListener(TaskConfig):
             stime := config_dict["AUTO_DELETE_UPLOAD_MESSAGE_DURATION"]
         ):
             bot_loop.create_task(
-                auto_delete_message(self.message, reply_to, stime=stime)
+                auto_delete_message(self.message, reply_to, stime=stime),
             )
 
     async def onUploadError(self, error):
@@ -763,7 +809,8 @@ class TaskListener(TaskConfig):
                 await sendCustom(msg, chat_id)
         if len(error) > (1000 if config_dict["ENABLE_IMAGE_MODE"] else 3800):
             err_msg = await sync_to_async(
-                TelePost("Upload Error").create_post, error.replace("\n", "<br>")
+                TelePost("Upload Error").create_post,
+                error.replace("\n", "<br>"),
             )
             err_msg = f'<a href="{err_msg}"><b>Details</b></a>'
         else:
@@ -819,5 +866,5 @@ class TaskListener(TaskConfig):
             stime := config_dict["AUTO_DELETE_UPLOAD_MESSAGE_DURATION"]
         ):
             bot_loop.create_task(
-                auto_delete_message(self.message, reply_to, stime=stime)
+                auto_delete_message(self.message, reply_to, stime=stime),
             )

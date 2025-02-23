@@ -90,7 +90,8 @@ class TelePost:
     def _create_telegraph(self):
         try:
             tele = TelegraphPoster(
-                use_api=True, telegraph_api_url="https://api.graph.org"
+                use_api=True,
+                telegraph_api_url="https://api.graph.org",
             )
             tele.create_api_token("Telegraph")
             page = tele.post(

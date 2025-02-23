@@ -11,7 +11,7 @@ async def ping_base_route(repeat=False):
         try:
             code = await (
                 await create_subprocess_exec(
-                    *["cloudflared", "service", "install", token]
+                    *["cloudflared", "service", "install", token],
                 )
             ).wait()
             if code != 0:
@@ -42,7 +42,7 @@ async def kill_route():
         try:
             await (
                 await create_subprocess_exec(
-                    *["cloudflared", "service", "uninstall"]
+                    *["cloudflared", "service", "uninstall"],
                 )
             ).wait()
         except Exception as e:

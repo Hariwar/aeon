@@ -27,7 +27,9 @@ from bot.helper.telegram_helper.message_utils import update_status_message
 
 async def _remove_torrent(client, hash_, tag):
     await sync_to_async(
-        client.torrents_delete, torrent_hashes=hash_, delete_files=True
+        client.torrents_delete,
+        torrent_hashes=hash_,
+        delete_files=True,
     )
     async with qb_listener_lock:
         QbTorrents.pop(tag, None)
@@ -56,7 +58,7 @@ async def _onSeedFinish(tor):
     if hasattr(task, "client"):
         await gather(
             task.listener.onUploadError(
-                f"Seeding stopped with Ratio {round(tor.ratio, 3)} ({get_readable_time(tor.seeding_time)})"
+                f"Seeding stopped with Ratio {round(tor.ratio, 3)} ({get_readable_time(tor.seeding_time)})",
             ),
             _remove_torrent(task.client, ext_hash, tor.tags),
         )
@@ -82,7 +84,8 @@ async def _download_limits(tor):
     ):
         LOGGER.info("File/folder size over the limit size!")
         _onDownloadError(
-            f"{msg}. File/folder size is {get_readable_file_size(tor.size)}.", tor
+            f"{msg}. File/folder size is {get_readable_file_size(tor.size)}.",
+            tor,
         )
 
 
@@ -99,7 +102,8 @@ async def _onDownloadComplete(tor):
             await clean_unwanted(task.listener.dir)
             path = tor.content_path.rsplit("/", 1)[0]
             res = await sync_to_async(
-                task.client.torrents_files, torrent_hash=ext_hash
+                task.client.torrents_files,
+                torrent_hash=ext_hash,
             )
             for f in res:
                 if f.priority == 0:
@@ -111,7 +115,8 @@ async def _onDownloadComplete(tor):
                 if task.listener.mid in task_dict:
                     removed = False
                     task_dict[task.listener.mid] = QbittorrentStatus(
-                        task.listener, True
+                        task.listener,
+                        True,
                     )
                 else:
                     removed = True
@@ -174,7 +179,8 @@ async def _qb_listener():
                             msg = f"Force recheck - Name: {tor_info.name} Hash: {tor_info.hash} Downloaded Bytes: {tor_info.downloaded} Size: {tor_info.size} Total Size: {tor_info.total_size}"
                             LOGGER.warning(msg)
                             await sync_to_async(
-                                client.torrents_recheck, torrent_hashes=tor_info.hash
+                                client.torrents_recheck,
+                                torrent_hashes=tor_info.hash,
                             )
                             QbTorrents[tag]["rechecked"] = True
                         elif (
@@ -190,11 +196,13 @@ async def _qb_listener():
                             )
                     elif state == "missingFiles":
                         await sync_to_async(
-                            client.torrents_recheck, torrent_hashes=tor_info.hash
+                            client.torrents_recheck,
+                            torrent_hashes=tor_info.hash,
                         )
                     elif state == "error":
                         _onDownloadError(
-                            "No enough space for this torrent on device", tor_info
+                            "No enough space for this torrent on device",
+                            tor_info,
                         )
                     elif (
                         tor_info.completion_on != 0

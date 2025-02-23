@@ -27,7 +27,7 @@ class gdClone(GoogleDriveHelper):
 
     def user_setting(self):
         if self.listener.upDest.startswith("mtp:") or self.listener.link.startswith(
-            "mtp:"
+            "mtp:",
         ):
             self.token_path = f"tokens/{self.listener.user_id}.pickle"
             self.listener.upDest = self.listener.upDest.replace("mtp:", "", 1)
@@ -36,7 +36,7 @@ class gdClone(GoogleDriveHelper):
             self.listener.upDest = self.listener.upDest.replace("tp:", "", 1)
             self.use_sa = False
         elif self.listener.upDest.startswith("sa:") or self.listener.user_dict.get(
-            "use_sa"
+            "use_sa",
         ):
             self.listener.upDest = self.listener.upDest.replace("sa:", "", 1)
             self.use_sa = True
@@ -61,14 +61,16 @@ class gdClone(GoogleDriveHelper):
             mime_type = meta.get("mimeType")
             if mime_type == self.G_DRIVE_DIR_MIME_TYPE:
                 dir_id = self.create_directory(
-                    meta.get("name"), self.listener.upDest
+                    meta.get("name"),
+                    self.listener.upDest,
                 )
                 self._cloneFolder(meta.get("name"), meta.get("id"), dir_id)
                 durl = self.G_DRIVE_DIR_BASE_DOWNLOAD_URL.format(dir_id)
                 if self.is_cancelled:
                     LOGGER.info("Deleting cloned data from Drive...")
                     self.service.files().delete(
-                        fileId=dir_id, supportsAllDrives=True
+                        fileId=dir_id,
+                        supportsAllDrives=True,
                     ).execute()
                     return None, None, None, None, None, None
                 mime_type = "Folder"
@@ -76,7 +78,9 @@ class gdClone(GoogleDriveHelper):
             else:
                 self.listener.name = self.listener.newname or self.listener.name
                 file = self._copyFile(
-                    meta.get("id"), self.listener.upDest, self.listener.newname
+                    meta.get("id"),
+                    self.listener.upDest,
+                    self.listener.newname,
                 )
                 msg += f"<b>Name: </b><code>{file.get('name')}</code>"
                 durl = self.G_DRIVE_BASE_DOWNLOAD_URL.format(file.get("id"))

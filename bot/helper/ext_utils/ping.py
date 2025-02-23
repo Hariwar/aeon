@@ -15,7 +15,7 @@ async def ping_server(repeat: bool):
         try:
             if not (url := config_dict["PING_URL"]):
                 raise ValueError(
-                    f"PING_URL not provided! Retrying in 10 seconds ({attemp}/5)."
+                    f"PING_URL not provided! Retrying in 10 seconds ({attemp}/5).",
                 )
             async with (
                 ClientSession(timeout=ClientTimeout(total=10)) as session,
@@ -23,7 +23,7 @@ async def ping_server(repeat: bool):
             ):
                 if (respon := res.status) != 200:
                     raise ValueError(
-                        f"ERROR, got respons {respon}. Retrying in 10 seconds ({attemp}/5)."
+                        f"ERROR, got respons {respon}. Retrying in 10 seconds ({attemp}/5).",
                     )
             await sleep(600)
         except Exception as e:

@@ -52,7 +52,7 @@ async def add_direct_download(listener: task.TaskListener, path: str):
     if msg := await check_limits_size(listener, size):
         LOGGER.info("File/folder size over the limit size!")
         await listener.onDownloadError(
-            f"{msg}. File/folder size is {get_readable_file_size(size)}."
+            f"{msg}. File/folder size is {get_readable_file_size(size)}.",
         )
         return
 

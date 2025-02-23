@@ -15,7 +15,10 @@ def short_url(longurl, user_id=None, attempt=0):
         headers = {"public-api-token": _shortener_api}
         data = {"urlToShorten": quote(longurl)}
         return cget(
-            "PUT", "https://api.shorte.st/v1/data/url", headers=headers, data=data
+            "PUT",
+            "https://api.shorte.st/v1/data/url",
+            headers=headers,
+            data=data,
         ).json()["shortenedUrl"]
 
     def linkvertise():

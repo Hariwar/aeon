@@ -90,7 +90,9 @@ class UseCheck:
                 return "⁍ Set username: Go to <b>Settings</b> -> <b>My Account</b> -> <b>Username</b>."
             if self._user_dict.get("user_name", "") != uname:
                 await update_user_ldata(
-                    self._uid, "user_name", self._message.from_user.username
+                    self._uid,
+                    "user_name",
+                    self._message.from_user.username,
                 )
                 return None
             return None
@@ -141,7 +143,8 @@ class UseCheck:
                 buttons.button_link(
                     "Get Session",
                     await sync_to_async(
-                        short_url, f"https://t.me/{bot_name}?start={token}"
+                        short_url,
+                        f"https://t.me/{bot_name}?start={token}",
                     ),
                 )
                 return f"⁍ Session is exipred (renew every {get_readable_time(SESSION_TIMEOUT)}</i>)."
@@ -171,7 +174,8 @@ class UseCheck:
         if config_dict["FSUB"]:
             try:
                 await self._message._client.get_chat_member(
-                    config_dict["FSUB_CHANNEL_ID"], self._uid
+                    config_dict["FSUB_CHANNEL_ID"],
+                    self._uid,
                 )
             except:
                 CHANNEL_USERNAME = config_dict["CHANNEL_USERNAME"]

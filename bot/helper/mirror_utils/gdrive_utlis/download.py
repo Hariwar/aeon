@@ -43,7 +43,10 @@ class gdDownload(GoogleDriveHelper):
             else:
                 makedirs(self._path, exist_ok=True)
                 self._download_file(
-                    file_id, self._path, self.listener.name, meta.get("mimeType")
+                    file_id,
+                    self._path,
+                    self.listener.name,
+                    meta.get("mimeType"),
                 )
         except Exception as err:
             if isinstance(err, RetryError):
@@ -89,9 +92,9 @@ class gdDownload(GoogleDriveHelper):
             if mime_type == self.G_DRIVE_DIR_MIME_TYPE:
                 self._download_folder(file_id, path, filename)
             elif not ospath.isfile(
-                f"{path}{filename}"
+                f"{path}{filename}",
             ) and not filename.lower().endswith(
-                tuple(self.listener.extensionFilter)
+                tuple(self.listener.extensionFilter),
             ):
                 self._download_file(file_id, path, filename, mime_type)
             if self.is_cancelled:
@@ -104,7 +107,8 @@ class gdDownload(GoogleDriveHelper):
     )
     def _download_file(self, file_id, path, filename, mime_type):
         request = self.service.files().get_media(
-            fileId=file_id, supportsAllDrives=True
+            fileId=file_id,
+            supportsAllDrives=True,
         )
         filename = filename.replace("/", "")
         if len(filename.encode()) > 255:
@@ -148,7 +152,10 @@ class gdDownload(GoogleDriveHelper):
                         self.switchServiceAccount()
                         LOGGER.info("Got: %s, Trying Again...", reason)
                         return self._download_file(
-                            file_id, path, filename, mime_type
+                            file_id,
+                            path,
+                            filename,
+                            mime_type,
                         )
 
                     LOGGER.error("Got: %s", reason)

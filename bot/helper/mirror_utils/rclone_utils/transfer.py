@@ -165,7 +165,10 @@ class RcloneTransferHelper:
                 remote = f"sa{self._sa_index:03}"
                 LOGGER.info("Download with service account %s", remote)
         cmd = self._getUpdatedCommand(
-            config_path, f"{remote}:{self._listener.link}", path, "copy"
+            config_path,
+            f"{remote}:{self._listener.link}",
+            path,
+            "copy",
         )
         if (
             remote_type == "drive"
@@ -202,7 +205,8 @@ class RcloneTransferHelper:
         if code == 0:
             result = loads(res)
             fid = next(
-                (r["ID"] for r in result if r["Path"] == self._listener.name), "err"
+                (r["ID"] for r in result if r["Path"] == self._listener.name),
+                "err",
             )
             link = (
                 f"https://drive.google.com/drive/folders/{fid}"
@@ -211,7 +215,9 @@ class RcloneTransferHelper:
             )
         elif code != -9:
             LOGGER.error(
-                "While getting drive link. Path: %s. Stderr: %s", destination, err
+                "While getting drive link. Path: %s. Stderr: %s",
+                destination,
+                err,
             )
             link = ""
         return link, destination
@@ -260,13 +266,14 @@ class RcloneTransferHelper:
         if await aiopath.isdir(path):
             mime_type = "Folder"
             folders, files = await count_files_and_folders(
-                path, self._listener.extensionFilter
+                path,
+                self._listener.extensionFilter,
             )
             rc_path += f"/{self._listener.name}" if rc_path else self._listener.name
         else:
             if path.lower().endswith(tuple(self._listener.extensionFilter)):
                 await self._listener.onUploadError(
-                    f"This file extension is excluded by extension filter ({', '.join(self._listener.extensionFilter[2:])})!"
+                    f"This file extension is excluded by extension filter ({', '.join(self._listener.extensionFilter[2:])})!",
                 )
                 return
             mime_type = await sync_to_async(get_mime_type, path)
@@ -297,7 +304,10 @@ class RcloneTransferHelper:
             "move" if not self._listener.seed or self._listener.newDir else "copy"
         )
         cmd = self._getUpdatedCommand(
-            fconfig_path, path, f"{fremote}:{rc_path}", method
+            fconfig_path,
+            path,
+            f"{fremote}:{rc_path}",
+            method,
         )
         if (
             remote_type == "drive"
@@ -305,14 +315,17 @@ class RcloneTransferHelper:
             and not self._listener.rcFlags
         ):
             cmd.extend(
-                ("--drive-chunk-size", "128M", "--drive-upload-cutoff", "128M")
+                ("--drive-chunk-size", "128M", "--drive-upload-cutoff", "128M"),
             )
         result = await self._start_upload(cmd, remote_type, using_sa)
         if not result:
             return
         if remote_type == "drive":
             link, destination = await self._get_gdrive_link(
-                oconfig_path, oremote, rc_path, mime_type
+                oconfig_path,
+                oremote,
+                rc_path,
+                mime_type,
             )
         else:
             if mime_type == "Folder":
@@ -327,14 +340,21 @@ class RcloneTransferHelper:
                 link = res
             elif code != -9:
                 LOGGER.error(
-                    "While getting link. Path: %s | Stderr: %s", destination, err
+                    "While getting link. Path: %s | Stderr: %s",
+                    destination,
+                    err,
                 )
                 link = ""
         if self._is_cancelled:
             return
         LOGGER.info("Upload Done. Path: %s", destination)
         await self._listener.onUploadComplete(
-            link, size, files, folders, mime_type, destination
+            link,
+            size,
+            files,
+            folders,
+            mime_type,
+            destination,
         )
 
     async def clone(self, config_path, src_remote, src_path, mime_type, drive_id):
@@ -343,7 +363,8 @@ class RcloneTransferHelper:
         if drive_id:
             try:
                 dst_remote_opt = await self._get_remote_options(
-                    config_path, dst_remote
+                    config_path,
+                    dst_remote,
                 )
             except Exception as err:
                 await self._listener.onUploadError(err)
@@ -351,7 +372,7 @@ class RcloneTransferHelper:
             src_remote_type, dst_remote_type = "drive", dst_remote_opt["type"]
             if dst_remote_type != "drive":
                 await self._listener.onUploadError(
-                    "Destion not supported for clone gdrive link!"
+                    "Destion not supported for clone gdrive link!",
                 )
                 return None, None
             if mime_type == "Folder":
@@ -382,7 +403,10 @@ class RcloneTransferHelper:
                 dst_remote_opt["type"],
             )
             cmd = self._getUpdatedCommand(
-                config_path, f"{src_remote}:{src_path}", destination, "copy"
+                config_path,
+                f"{src_remote}:{src_path}",
+                destination,
+                "copy",
             )
 
         if (
@@ -398,7 +422,7 @@ class RcloneTransferHelper:
                     "--drive-rolling-sa",
                     "--drive-rolling-count",
                     "4",
-                )
+                ),
             )
         if not self._listener.rcFlags and not config_dict["RCLONE_FLAGS"]:
             if src_remote_type == "drive" and dst_remote_type != "drive":
@@ -410,7 +434,7 @@ class RcloneTransferHelper:
                     (
                         "--server-side-across-configs",
                         "--drive-server-side-across-configs",
-                    )
+                    ),
                 )
 
         self._proc = await create_subprocess_exec(*cmd, stdout=PIPE, stderr=PIPE)
@@ -436,7 +460,10 @@ class RcloneTransferHelper:
 
         if dst_remote_type == "drive":
             link, destination = await self._get_gdrive_link(
-                config_path, dst_remote, dst_path, mime_type
+                config_path,
+                dst_remote,
+                dst_path,
+                mime_type,
             )
             return (None, None) if self._is_cancelled else (link, destination)
         if mime_type != "Folder":
@@ -451,7 +478,9 @@ class RcloneTransferHelper:
             return res, destination
         if code != -9:
             LOGGER.error(
-                "While getting link. Path: %s | Stderr: %s", destination, err
+                "While getting link. Path: %s | Stderr: %s",
+                destination,
+                err,
             )
             return None, destination
         return None
@@ -462,7 +491,7 @@ class RcloneTransferHelper:
         cmd.extend(method) if isinstance(method, list) else cmd.append(method)
         cmd.append(source)
         cmd.extend(destination) if isinstance(destination, list) else cmd.append(
-            destination
+            destination,
         )
         cmd.extend(
             (
@@ -480,7 +509,7 @@ class RcloneTransferHelper:
                 "rlog.txt",
                 "--log-level",
                 "DEBUG",
-            )
+            ),
         )
         if rcflags := self._listener.rcFlags or config_dict["RCLONE_FLAGS"]:
             rcflags = rcflags.split("|")

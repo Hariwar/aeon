@@ -58,7 +58,7 @@ class gdUpload(GoogleDriveHelper):
             if ospath.isfile(self._path):
                 if self._path.lower().endswith(tuple(self.listener.extensionFilter)):
                     raise Exception(
-                        "This file extension is excluded by extension filter!"
+                        "This file extension is excluded by extension filter!",
                     )
                 mime_type = get_mime_type(self._path)
                 link = self._upload_file(
@@ -99,7 +99,8 @@ class gdUpload(GoogleDriveHelper):
                 if mime_type == "Folder":
                     LOGGER.info("Deleting uploaded data from Drive...")
                     self.service.files().delete(
-                        fileId=dir_id, supportsAllDrives=True
+                        fileId=dir_id,
+                        supportsAllDrives=True,
                     ).execute()
                 return
             if self._is_errored:
@@ -156,12 +157,16 @@ class gdUpload(GoogleDriveHelper):
 
         if ospath.getsize(file_path) == 0:
             media_body = MediaFileUpload(
-                file_path, mimetype=mime_type, resumable=False
+                file_path,
+                mimetype=mime_type,
+                resumable=False,
             )
             response = (
                 self.service.files()
                 .create(
-                    body=file_metadata, media_body=media_body, supportsAllDrives=True
+                    body=file_metadata,
+                    media_body=media_body,
+                    supportsAllDrives=True,
                 )
                 .execute()
             )
@@ -182,7 +187,9 @@ class gdUpload(GoogleDriveHelper):
 
         # Insert a file
         drive_file = self.service.files().create(
-            body=file_metadata, media_body=media_body, supportsAllDrives=True
+            body=file_metadata,
+            media_body=media_body,
+            supportsAllDrives=True,
         )
         response = None
         retries = 0
@@ -213,7 +220,10 @@ class gdUpload(GoogleDriveHelper):
                         self.switchServiceAccount()
                         LOGGER.info("Got: %s, Trying again.", reason)
                         return self._upload_file(
-                            file_path, file_name, mime_type, dest_id
+                            file_path,
+                            file_name,
+                            mime_type,
+                            dest_id,
                         )
 
                     LOGGER.error("Got: %s", reason)

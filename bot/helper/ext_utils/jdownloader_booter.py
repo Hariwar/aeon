@@ -52,7 +52,7 @@ class JDownloader(MyJdApi):
             LOGGER.info("Starting JDownloader... This might take up to 5 sec")
         else:
             LOGGER.info(
-                "Starting JDownloader... This might take up to 15 sec and might restart once after build!"
+                "Starting JDownloader... This might take up to 15 sec and might restart once after build!",
             )
         jdata = {
             "autoconnectenabledv2": True,
@@ -130,7 +130,8 @@ class JDownloader(MyJdApi):
         self.device.enable_direct_connection()
         self.error = ""
         LOGGER.info(
-            "JDownloader have been connected on device %s!", self._device_name
+            "JDownloader have been connected on device %s!",
+            self._device_name,
         )
 
 

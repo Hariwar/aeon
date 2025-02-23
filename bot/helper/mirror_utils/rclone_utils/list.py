@@ -62,7 +62,8 @@ class RcloneList:
         pfunc = partial(path_updates, obj=self)
         handler = self.listener.client.add_handler(
             CallbackQueryHandler(
-                pfunc, filters=regex("^rcq") & user(self.listener.user_id)
+                pfunc,
+                filters=regex("^rcq") & user(self.listener.user_id),
             ),
             group=-1,
         )
@@ -86,7 +87,7 @@ class RcloneList:
         page = (self.iter_start / LIST_LIMIT) + 1 if self.iter_start != 0 else 1
         buttons = ButtonMaker()
         for index, idict in enumerate(
-            self.path_list[self.iter_start : LIST_LIMIT + self.iter_start]
+            self.path_list[self.iter_start : LIST_LIMIT + self.iter_start],
         ):
             orig_index = index + self.iter_start
             if idict["IsDir"]:
@@ -250,7 +251,8 @@ class RcloneList:
             await self.list_remotes()
         else:
             self._rc_user, self._rc_owner = await gather(
-                aiopath.exists(self.user_rcc_path), aiopath.exists("rclone.conf")
+                aiopath.exists(self.user_rcc_path),
+                aiopath.exists("rclone.conf"),
             )
             if not self._rc_owner and not self._rc_user:
                 self.event.set()

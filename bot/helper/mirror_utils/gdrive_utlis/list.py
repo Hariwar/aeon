@@ -50,7 +50,8 @@ class gdriveList(GoogleDriveHelper):
         pfunc = partial(id_updates, obj=self)
         handler = self.listener.client.add_handler(
             CallbackQueryHandler(
-                pfunc, filters=regex("^gdq") & user(self.listener.user_id)
+                pfunc,
+                filters=regex("^gdq") & user(self.listener.user_id),
             ),
             group=-1,
         )
@@ -74,7 +75,7 @@ class gdriveList(GoogleDriveHelper):
         page = (self.iter_start / LIST_LIMIT) + 1 if self.iter_start != 0 else 1
         buttons = ButtonMaker()
         for index, item in enumerate(
-            self.items_list[self.iter_start : LIST_LIMIT + self.iter_start]
+            self.items_list[self.iter_start : LIST_LIMIT + self.iter_start],
         ):
             orig_index = index + self.iter_start
             if item["mimeType"] == self.G_DRIVE_DIR_MIME_TYPE:

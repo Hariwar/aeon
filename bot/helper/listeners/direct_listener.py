@@ -12,7 +12,11 @@ if TYPE_CHECKING:
 
 class DirectListener:
     def __init__(
-        self, listener: task.TaskListener, total_size: int, path: str, a2c_opt: str
+        self,
+        listener: task.TaskListener,
+        total_size: int,
+        path: str,
+        a2c_opt: str,
     ):
         self._path = path
         self._listener = listener
@@ -47,7 +51,9 @@ class DirectListener:
             self._a2c_opt["out"] = filename
             try:
                 self.task = aria2.add_uris(
-                    [content["url"]], self._a2c_opt, position=0
+                    [content["url"]],
+                    self._a2c_opt,
+                    position=0,
                 )
             except Exception as e:
                 self._failed += 1
@@ -79,7 +85,8 @@ class DirectListener:
             return
         if self._failed == len(contents):
             async_to_sync(
-                self._listener.onDownloadError, "All files are failed to download!"
+                self._listener.onDownloadError,
+                "All files are failed to download!",
             )
             return
         async_to_sync(self._listener.onDownloadComplete)

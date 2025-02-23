@@ -104,7 +104,8 @@ class TeleContent:
         if task > self._max:
             buttons.button_data("<<", f"{pattern} {user_id} pre {mid}")
             buttons.button_data(
-                f"{self._page_no}/{self._pages}", f"{pattern} {user_id} page {mid}"
+                f"{self._page_no}/{self._pages}",
+                f"{pattern} {user_id} page {mid}",
             )
             buttons.button_data(">>", f"{pattern} {user_id} nex {mid}")
         buttons.button_data("Close", f"{pattern} {user_id} close {mid}")
