@@ -52,7 +52,7 @@ class ZipStatus:
         ):
             self._iszpath = True
             zsize = get_readable_file_size(
-                async_to_sync(get_path_size, self.listener.dir)
+                async_to_sync(get_path_size, self.listener.dir),
             )
             return f"{self.listener.name} ({zsize}) ~ {zname}.zip"
         return self.listener.name
@@ -63,7 +63,7 @@ class ZipStatus:
     def eta(self):
         try:
             return get_readable_time(
-                (self._size - self.processed_raw()) / self.speed_raw()
+                (self._size - self.processed_raw()) / self.speed_raw(),
             )
         except:
             return "~"

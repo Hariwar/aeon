@@ -51,7 +51,7 @@ class ExtractStatus:
     def eta(self):
         try:
             return get_readable_time(
-                (self._size - self.processed_raw()) / self.speed_raw()
+                (self._size - self.processed_raw()) / self.speed_raw(),
             )
         except:
             return "~"

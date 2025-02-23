@@ -51,7 +51,7 @@ def get_download(gid, old_info, start_time):
                 "eta": True,
                 "status": True,
                 "hosts": True,
-            }
+            },
         ]
         result = jdownloader.device.downloads.query_packages(jdata)
         return (

@@ -62,7 +62,7 @@ class FFMpegStatus:
             return get_readable_time(self._obj.eta)
         try:
             return get_readable_time(
-                (self._obj.size - self._obj.processed_bytes) / self._obj.speed
+                (self._obj.size - self._obj.processed_bytes) / self._obj.speed,
             )
         except:
             return "~"

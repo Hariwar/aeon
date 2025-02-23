@@ -104,10 +104,13 @@ class Aria2Status:
             LOGGER.info("Cancelling Seed: %s", self.name())
             await gather(
                 self.listener.onUploadError(
-                    f"Seeding stopped with Ratio: {self.ratio()} and Time: {self.seeding_time()}"
+                    f"Seeding stopped with Ratio: {self.ratio()} and Time: {self.seeding_time()}",
                 ),
                 sync_to_async(
-                    aria2.remove, [self._download], force=True, files=True
+                    aria2.remove,
+                    [self._download],
+                    force=True,
+                    files=True,
                 ),
             )
         elif downloads := self._download.followed_by:
@@ -125,6 +128,9 @@ class Aria2Status:
             await gather(
                 self.listener.onDownloadError(msg),
                 sync_to_async(
-                    aria2.remove, [self._download], force=True, files=True
+                    aria2.remove,
+                    [self._download],
+                    force=True,
+                    files=True,
                 ),
             )
