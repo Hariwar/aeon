@@ -39,8 +39,10 @@ class ByteStreamer:
         try:
             r = await media_session.invoke(
                 raw.functions.upload.GetFile(
-                    location=location, offset=offset, limit=chunk_size
-                )
+                    location=location,
+                    offset=offset,
+                    limit=chunk_size,
+                ),
             )
             if isinstance(r, raw.types.upload.File):
                 while current_part <= part_count:
@@ -57,8 +59,10 @@ class ByteStreamer:
                         yield chunk
                     r = await media_session.invoke(
                         raw.functions.upload.GetFile(
-                            location=location, offset=offset, limit=chunk_size
-                        )
+                            location=location,
+                            offset=offset,
+                            limit=chunk_size,
+                        ),
                     )
                     current_part += 1
         except (TimeoutError, AttributeError) as e:
@@ -75,7 +79,9 @@ class ByteStreamer:
                     bot,
                     file_id.dc_id,
                     await Auth(
-                        bot, file_id.dc_id, await bot.storage.test_mode()
+                        bot,
+                        file_id.dc_id,
+                        await bot.storage.test_mode(),
                     ).create(),
                     await bot.storage.test_mode(),
                     is_media=True,
@@ -83,18 +89,20 @@ class ByteStreamer:
                 await media_session.start()
                 for _ in range(6):
                     exported_auth = await bot.invoke(
-                        raw.functions.auth.ExportAuthorization(dc_id=file_id.dc_id)
+                        raw.functions.auth.ExportAuthorization(dc_id=file_id.dc_id),
                     )
                     try:
                         await media_session.invoke(
                             raw.functions.auth.ImportAuthorization(
-                                id=exported_auth.id, bytes=exported_auth.bytes
-                            )
+                                id=exported_auth.id,
+                                bytes=exported_auth.bytes,
+                            ),
                         )
                         break
                     except AuthBytesInvalid:
                         LOGGER.info(
-                            "Invalid authorization bytes for DC %s!", file_id.dc_id
+                            "Invalid authorization bytes for DC %s!",
+                            file_id.dc_id,
                         )
                         continue
                 else:

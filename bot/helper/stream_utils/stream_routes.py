@@ -21,7 +21,8 @@ routes = web.RouteTableDef()
 async def root_handler(_):
     try:
         return web.Response(
-            text=await render_page(None, None, True), content_type="text/html"
+            text=await render_page(None, None, True),
+            content_type="text/html",
         )
     except Exception as e:
         LOGGER.error(e, exc_info=True)
@@ -58,7 +59,8 @@ async def stream_handler(request: web.Request):
             message_id = int(re_search(r"(\d+)(?:\/\S+)?", path).group(1))
             secure_hash = request.rel_url.query.get("hash")
         return web.Response(
-            text=await render_page(message_id, secure_hash), content_type="text/html"
+            text=await render_page(message_id, secure_hash),
+            content_type="text/html",
         )
     except InvalidHash as e:
         raise web.HTTPForbidden(text=e.message)
@@ -125,7 +127,12 @@ async def media_streamer(request: web.Request, message_id: int, secure_hash: str
     req_length = until_bytes - from_bytes + 1
     part_count = ceil(until_bytes / chunk_size) - floor(offset / chunk_size)
     body = stream.yield_file(
-        file_id, offset, first_part_cut, last_part_cut, part_count, chunk_size
+        file_id,
+        offset,
+        first_part_cut,
+        last_part_cut,
+        part_count,
+        chunk_size,
     )
     mime_type, file_name = file_id.mime_type, file_id.file_name
     disposition = "attachment"

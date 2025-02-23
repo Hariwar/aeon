@@ -42,12 +42,15 @@ async def render_page(message_id, secure_hash, is_home=False, ddl=""):
             file_data = await get_file_ids(int(message_id))
             if file_data.unique_id[:6] != secure_hash:
                 LOGGER.info(
-                    "Link hash: %s - %s", secure_hash, file_data.unique_id[:6]
+                    "Link hash: %s - %s",
+                    secure_hash,
+                    file_data.unique_id[:6],
                 )
                 LOGGER.info("Invalid hash for message with - ID %s", message_id)
                 raise InvalidHash
             src = urljoin(
-                config_dict["STREAM_BASE_URL"], f"{secure_hash}{message_id}"
+                config_dict["STREAM_BASE_URL"],
+                f"{secure_hash}{message_id}",
             )
 
         filename = file_data.file_name
@@ -78,7 +81,7 @@ async def render_page(message_id, secure_hash, is_home=False, ddl=""):
                 ):
                     heading = f"Download: {filename}"
                     file_size = get_readable_file_size(
-                        int(u.headers.get("Content-Length"))
+                        int(u.headers.get("Content-Length")),
                     )
                     html = (await r.read()) % (heading, filename, src, file_size)
     return html
