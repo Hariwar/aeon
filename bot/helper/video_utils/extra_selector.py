@@ -44,7 +44,8 @@ class ExtraSelect:
         pfunc = partial(cb_extra, obj=self)
         handler = self._listener.client.add_handler(
             CallbackQueryHandler(
-                pfunc, filters=regex("^extra") & user(self._listener.user_id)
+                pfunc,
+                filters=regex("^extra") & user(self._listener.user_id),
             ),
             group=-1,
         )
@@ -115,7 +116,8 @@ class ExtraSelect:
                     text += "\nStream will removed:\n"
                     for i, sindex in enumerate(sdata, start=1):
                         text += f"{i}. {ddict['stream'][sindex]['info']}\n".replace(
-                            "✅ ", ""
+                            "✅ ",
+                            "",
                         )
                 text += "\nSelect avalilable stream below!"
         if mode == "extract":
@@ -132,7 +134,9 @@ class ExtraSelect:
         if mode == "extract":
             for ext in self.extension:
                 buttons.button_data(
-                    ext.upper(), f"extra {mode} extension {ext}", "header"
+                    ext.upper(),
+                    f"extra {mode} extension {ext}",
+                    "header",
                 )
             buttons.button_data("Extract All", f"extra {mode} video audio subtitle")
         else:
@@ -161,7 +165,8 @@ class ExtraSelect:
                 self.executor.data["video"] = indexmap
             if codec_type == "audio":
                 buttons.button_data(
-                    f"Audio ~ {lang.upper()}", f"extra compress {indexmap}"
+                    f"Audio ~ {lang.upper()}",
+                    f"extra compress {indexmap}",
                 )
         buttons.button_data("Continue", "extra compress 0")
         buttons.button_data("Cancel", "extra cancel")
@@ -281,7 +286,7 @@ class ExtraSelect:
         if self.is_cancel:
             self._listener.suproc = "cancelled"
             await self._listener.onUploadError(
-                f"{VID_MODE[self.executor.mode]} stopped by user!"
+                f"{VID_MODE[self.executor.mode]} stopped by user!",
             )
 
 
@@ -322,7 +327,8 @@ async def cb_extra(_, query: CallbackQuery, obj: ExtraSelect):
                         for mapindex in sdata:
                             info = ddict["stream"][mapindex]["info"]
                             ddict["stream"][mapindex]["info"] = info.replace(
-                                "✅ ", ""
+                                "✅ ",
+                                "",
                             )
                         sdata.clear()
                         await obj.update_message(*obj.streams_select())
@@ -334,7 +340,8 @@ async def cb_extra(_, query: CallbackQuery, obj: ExtraSelect):
                         obj.event.set()
                     else:
                         await query.answer(
-                            "Please select at least one stream!", True
+                            "Please select at least one stream!",
+                            True,
                         )
                 case "audio" | "subtitle" as value:
                     await query.answer()
@@ -397,6 +404,6 @@ async def cb_extra(_, query: CallbackQuery, obj: ExtraSelect):
                     {
                         "key": int(value) if value.isdigit() else data[2:],
                         "extension": obj.extension,
-                    }
+                    },
                 )
                 obj.event.set()
