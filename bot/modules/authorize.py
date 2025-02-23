@@ -68,7 +68,9 @@ async def addSudo(_, message: Message):
     if id_:
         if day:
             await update_user_ldata(
-                id_, "sudo_left", int(time() + (86400 * int(msg[2])))
+                id_,
+                "sudo_left",
+                int(time() + (86400 * int(msg[2]))),
             )
         if user_data.get(id_, {}).get("is_sudo"):
             msg = "Already Sudo!"
@@ -106,22 +108,25 @@ async def removeSudo(_, message: Message):
 
 bot.add_handler(
     MessageHandler(
-        authorize, filters=command(BotCommands.AuthorizeCommand) & CustomFilters.sudo
-    )
+        authorize,
+        filters=command(BotCommands.AuthorizeCommand) & CustomFilters.sudo,
+    ),
 )
 bot.add_handler(
     MessageHandler(
         unauthorize,
         filters=command(BotCommands.UnAuthorizeCommand) & CustomFilters.sudo,
-    )
+    ),
 )
 bot.add_handler(
     MessageHandler(
-        addSudo, filters=command(BotCommands.AddSudoCommand) & CustomFilters.owner
-    )
+        addSudo,
+        filters=command(BotCommands.AddSudoCommand) & CustomFilters.owner,
+    ),
 )
 bot.add_handler(
     MessageHandler(
-        removeSudo, filters=command(BotCommands.RmSudoCommand) & CustomFilters.owner
-    )
+        removeSudo,
+        filters=command(BotCommands.RmSudoCommand) & CustomFilters.owner,
+    ),
 )

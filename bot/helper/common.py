@@ -850,7 +850,12 @@ class TaskConfig:
                 ):
                     archived.append(
                         await createArchive(
-                            self, fpath, dest_path, size, pswd, True
+                            self,
+                            fpath,
+                            dest_path,
+                            size,
+                            pswd,
+                            True,
                         ),
                     )
                 for item in glob(f"{self.newDir}/*"):
