@@ -51,7 +51,8 @@ async def medinfo(_, message: Message):
             await editPhoto("Error when getting info!", msg, img)
     else:
         await sendMessage(
-            "Send command along with link or by reply to the link/media!", message
+            "Send command along with link or by reply to the link/media!",
+            message,
         )
     if cmsg:
         await deleteMessage(cmsg)
@@ -59,6 +60,7 @@ async def medinfo(_, message: Message):
 
 bot.add_handler(
     MessageHandler(
-        medinfo, command(BotCommands.MediaInfoCommand) & CustomFilters.authorized
-    )
+        medinfo,
+        command(BotCommands.MediaInfoCommand) & CustomFilters.authorized,
+    ),
 )

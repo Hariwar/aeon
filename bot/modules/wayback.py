@@ -102,5 +102,5 @@ bot.add_handler(
     MessageHandler(
         wayback,
         filters=command(BotCommands.WayBackCommand) & CustomFilters.authorized,
-    )
+    ),
 )

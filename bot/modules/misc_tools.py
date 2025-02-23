@@ -290,7 +290,8 @@ class Misc(MiscTool):
     async def _event_handler(self):
         pfunc = partial(misc_callback, obj=self)
         handler = self._client.add_handler(
-            CallbackQueryHandler(pfunc, filters=regex("^misc")), group=-1
+            CallbackQueryHandler(pfunc, filters=regex("^misc")),
+            group=-1,
         )
         try:
             await wait_for(self.event.wait(), timeout=500)
@@ -365,18 +366,22 @@ class Misc(MiscTool):
                         )
             case "thumb":
                 await editMessage(
-                    "<i>Getting thumbnail(s), please wait...</i>", self.editable
+                    "<i>Getting thumbnail(s), please wait...</i>",
+                    self.editable,
                 )
                 text = self.query.replace(".", " ").replace("  ", " ")
                 pngs, dirpath = await self.thumb(text)
                 if pngs:
                     text = f"Sucsesfully generating thumbnail poster for <b>{text.title()}</b>."
                     await editMessage(
-                        f"{text}. <i>Sending the files...</i>", self.editable
+                        f"{text}. <i>Sending the files...</i>",
+                        self.editable,
                     )
                     for png in pngs:
                         await sendPhoto(
-                            f"<code>{ospath.basename(png)}</code>", self.message, png
+                            f"<code>{ospath.basename(png)}</code>",
+                            self.message,
+                            png,
                         )
                         if len(pngs) > 1:
                             await sleep(5)
@@ -430,7 +435,8 @@ class Misc(MiscTool):
                     text = self.error
             case "wss" | "vss" as value:
                 await editMessage(
-                    "<i>Generated screenshot, please wait...</i>", self.editable
+                    "<i>Generated screenshot, please wait...</i>",
+                    self.editable,
                 )
                 if value == "wss":
                     photo = await self.webss(self.query)
@@ -451,7 +457,10 @@ class Misc(MiscTool):
                     buttons.button_link("Source", self.query)
                     await gather(
                         sendPhoto(
-                            caption, self.message, photo, buttons.build_menu(1)
+                            caption,
+                            self.message,
+                            photo,
+                            buttons.build_menu(1),
                         ),
                         deleteMessage(self.editable),
                     )
@@ -465,10 +474,11 @@ class Misc(MiscTool):
         if config_dict["PREMIUM_MODE"] and not is_premium_user(
             self.message.from_user.id
             if self.message.from_user
-            else self.message.sender_chat.id
+            else self.message.sender_chat.id,
         ):
             await sendMessage(
-                "This feature only for <b>Premium User</b>!", self.message
+                "This feature only for <b>Premium User</b>!",
+                self.message,
             )
             return
         if not self.reply_to and len(self.message.command) == 1:
@@ -527,5 +537,5 @@ bot.add_handler(
     MessageHandler(
         misc_tools,
         filters=command(BotCommands.MiscCommand) & CustomFilters.authorized,
-    )
+    ),
 )

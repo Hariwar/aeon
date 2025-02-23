@@ -102,7 +102,8 @@ async def rssSub(client: Client, message: Message, query: CallbackQuery):
         feed_link = args[1].strip()
         if feed_link.startswith(("-inf", "-exf", "-c")):
             errmsg = await sendMessage(
-                f"Wrong input in line {index}! Add Title! Read the example!", message
+                f"Wrong input in line {index}! Add Title! Read the example!",
+                message,
             )
             _auto_delete(message, errmsg)
             continue
@@ -207,7 +208,10 @@ async def getUserId(title):
 
 
 async def rssUpdate(
-    client: Client, message: Message, query: CallbackQuery, state: str
+    client: Client,
+    message: Message,
+    query: CallbackQuery,
+    state: str,
 ):
     user_id = message.from_user.id
     handler_dict[user_id] = False
@@ -274,7 +278,7 @@ async def rssList(query: CallbackQuery, start: int, all_users: bool = False):
             index = 0
             for titles in list(rss_dict.values()):
                 for index, (title, data) in enumerate(
-                    list(titles.items())[start : 5 + start]
+                    list(titles.items())[start : 5 + start],
                 ):
                     list_feed += (
                         f"\n\n<b>Title:</b> <code>{title}</code>\n"
@@ -305,7 +309,9 @@ async def rssList(query: CallbackQuery, start: int, all_users: bool = False):
     if keysCount > 5:
         for x in range(0, keysCount, 5):
             buttons.button_data(
-                f"{int(x / 5) + 1}", f"rss list {user_id} {x}", "footer"
+                f"{int(x / 5) + 1}",
+                f"rss list {user_id} {x}",
+                "footer",
             )
     if query.message.text.html == list_feed:
         return
@@ -330,7 +336,8 @@ async def rssGet(_, message: Message, query: CallbackQuery):
         data = rss_dict[user_id].get(title, False)
         if data and count > 0:
             msg = await sendMessage(
-                f"Getting the last <b>{count}</b> item(s) from {title}", message
+                f"Getting the last <b>{count}</b> item(s) from {title}",
+                message,
             )
             try:
                 async with (
@@ -356,7 +363,9 @@ async def rssGet(_, message: Message, query: CallbackQuery):
                         await f.write(f"{item_info_ecd}")
                     await gather(
                         sendFile(
-                            message, filename, f"RSSGet {title} items_no. {count}"
+                            message,
+                            filename,
+                            f"RSSGet {title} items_no. {count}",
                         ),
                         deleteMessage(msg),
                     )
@@ -365,7 +374,8 @@ async def rssGet(_, message: Message, query: CallbackQuery):
             except IndexError as e:
                 LOGGER.error(e)
                 await editMessage(
-                    "Parse depth exceeded. Try again with a lower value.", msg
+                    "Parse depth exceeded. Try again with a lower value.",
+                    msg,
                 )
             except Exception as e:
                 LOGGER.error(e)
@@ -449,11 +459,12 @@ async def event_handler(client: Client, query: CallbackQuery, pfunc: partial):
         return bool(
             user.id == user_id
             and event.chat.id == query.message.chat.id
-            and event.text
+            and event.text,
         )
 
     handler = client.add_handler(
-        MessageHandler(pfunc, create(event_filter)), group=-1
+        MessageHandler(pfunc, create(event_filter)),
+        group=-1,
     )
     while handler_dict[user_id]:
         await sleep(0.5)
@@ -475,7 +486,8 @@ async def rssListener(client: Client, query: CallbackQuery):
         case "close":
             handler_dict[user_id] = False
             await gather(
-                query.answer(), deleteMessage(message, message.reply_to_message)
+                query.answer(),
+                deleteMessage(message, message.reply_to_message),
             )
         case "back":
             handler_dict[user_id] = False
@@ -488,7 +500,9 @@ async def rssListener(client: Client, query: CallbackQuery):
             pfunc = partial(rssSub, query=query)
             await gather(
                 query.answer().editMessage(
-                    HelpString.RSSHELP, message, buttons.build_menu(2)
+                    HelpString.RSSHELP,
+                    message,
+                    buttons.build_menu(2),
                 ),
                 event_handler(client, query, pfunc),
             )
@@ -526,15 +540,18 @@ async def rssListener(client: Client, query: CallbackQuery):
                 match value:
                     case "pause":
                         buttons.button_data(
-                            "Pause AllMyFeeds", f"rss uallpause {user_id}"
+                            "Pause AllMyFeeds",
+                            f"rss uallpause {user_id}",
                         )
                     case "resume":
                         buttons.button_data(
-                            "Resume AllMyFeeds", f"rss uallresume {user_id}"
+                            "Resume AllMyFeeds",
+                            f"rss uallresume {user_id}",
                         )
                     case "unsubscribe":
                         buttons.button_data(
-                            "Unsub AllMyFeeds", f"rss uallunsub {user_id}"
+                            "Unsub AllMyFeeds",
+                            f"rss uallunsub {user_id}",
                         )
                 buttons.button_data("Close", f"rss close {user_id}")
                 pfunc = partial(rssUpdate, query=query, state=value)
@@ -757,7 +774,7 @@ async def rssMonitor():
                     if user not in rss_dict or not rss_dict[user].get(title, False):
                         continue
                     rss_dict[user][title].update(
-                        {"last_feed": last_link, "last_title": last_title}
+                        {"last_feed": last_link, "last_title": last_title},
                     )
                 await DbManager().rss_update(user)
                 LOGGER.info("Feed Name: %s", title)
@@ -767,7 +784,10 @@ async def rssMonitor():
                 break
             except Exception as e:
                 LOGGER.error(
-                    "%s - Feed Name: %s - Feed Link: %s", e, title, data["link"]
+                    "%s - Feed Name: %s - Feed Link: %s",
+                    e,
+                    title,
+                    data["link"],
                 )
                 continue
     if all_paused:
@@ -793,6 +813,6 @@ bot.add_handler(
     MessageHandler(
         getRssMenu,
         filters=command(BotCommands.RssCommand) & CustomFilters.authorized,
-    )
+    ),
 )
 bot.add_handler(CallbackQueryHandler(rssListener, filters=regex("^rss")))

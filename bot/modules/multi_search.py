@@ -46,7 +46,11 @@ from bot.helper.telegram_helper.message_utils import (
 
 class MultiSerach:
     def __init__(
-        self, clinet: Client, message: Message, editable: Message, query: str
+        self,
+        clinet: Client,
+        message: Message,
+        editable: Message,
+        query: str,
     ):
         self._client: Client = clinet
         self._reply_to = None
@@ -90,7 +94,8 @@ class MultiSerach:
     async def change_query_handler(self):
         pfunc = partial(change_query, obj=self)
         handler = self._client.add_handler(
-            MessageHandler(pfunc, filters=text & user(self.user_id)), group=-1
+            MessageHandler(pfunc, filters=text & user(self.user_id)),
+            group=-1,
         )
         try:
             await wait_for(self.query_event.wait(), timeout=self._timeout)
@@ -110,7 +115,7 @@ class MultiSerach:
     async def search_files(self):
         cur_content: dict = self._content.get(self.query, {})
         if (saved_content := cur_content.get("data")) and cur_content.get(
-            "mode"
+            "mode",
         ) == self.mode:
             contents = saved_content
         else:
@@ -144,7 +149,7 @@ class MultiSerach:
                     contents.append(msg)
             elif self.mode == "gdrive":
                 if self.config_path.startswith("tokens/") or self.user_dict.get(
-                    "use_sa"
+                    "use_sa",
                 ):
                     target_id = self.user_dict.get("gdrive_id", "") or ""
                     LOGGER.info("Using user drive: %s2", target_id)
@@ -152,7 +157,8 @@ class MultiSerach:
                     target_id = ""
                 count, contents = await sync_to_async(
                     gdSearch(
-                        isRecursive=self.isRecursive, itemType=self.type
+                        isRecursive=self.isRecursive,
+                        itemType=self.type,
                     ).drive_list,
                     self.query,
                     target_id,
@@ -243,7 +249,10 @@ class MultiSerach:
                 if self.style == "graph" and config_dict["ENABLE_IMAGE_MODE"]:
                     await gather(
                         sendPhoto(
-                            cap, self.message, config_dict["IMAGE_SEARCH"], contents
+                            cap,
+                            self.message,
+                            config_dict["IMAGE_SEARCH"],
+                            contents,
                         ),
                         deleteMessage(self.editable),
                     )
@@ -252,7 +261,10 @@ class MultiSerach:
                 if self.style == "html":
                     await gather(
                         sendFile(
-                            self.message, contents, cap, config_dict["IMAGE_HTML"]
+                            self.message,
+                            contents,
+                            cap,
+                            config_dict["IMAGE_HTML"],
                         ),
                         deleteMessage(self.editable),
                     )
@@ -285,7 +297,9 @@ class MultiSerach:
             user_config = self.config_path.startswith(("rclone/", "tokens/"))
             buttons.button_data("Change Query", "list change", "header")
             buttons.button_data(
-                f"{'🔥 ' if user_config else ''}User Config", "list uc _", "header"
+                f"{'🔥 ' if user_config else ''}User Config",
+                "list uc _",
+                "header",
             )
             buttons.button_data("Files", "list files _")
             buttons.button_data("Folders", "list folders _")
@@ -327,7 +341,8 @@ class MultiSerach:
                 )
         elif self.search:
             msg, buttons = await self.tele_list.get_content(
-                "list", extra_buttons=[("Change Query", "change")]
+                "list",
+                extra_buttons=[("Change Query", "change")],
             )
             if not msg:
                 self.search = False
@@ -378,10 +393,11 @@ async def cb(_, query: CallbackQuery, obj: MultiSerach):
             await obj.list_buttons()
         case "html" | "graph" | "tele" as value:
             if not await aiopath.exists(obj.config_path) and not obj.user_dict.get(
-                "use_sa"
+                "use_sa",
             ):
                 await query.answer(
-                    f"{obj.config_path or 'Token.pickle'} not exists!", True
+                    f"{obj.config_path or 'Token.pickle'} not exists!",
+                    True,
                 )
                 return
             obj.style, obj.search = value, True
@@ -418,7 +434,9 @@ async def cb(_, query: CallbackQuery, obj: MultiSerach):
             obj.mode = value
             if value == "telegram":
                 await intialize_savebot(
-                    obj.user_dict.get("session_string"), True, obj.user_id
+                    obj.user_dict.get("session_string"),
+                    True,
+                    obj.user_id,
                 )
                 async with bot_lock:
                     userbot: Client = (
@@ -426,7 +444,8 @@ async def cb(_, query: CallbackQuery, obj: MultiSerach):
                     )
                 if not userbot:
                     await query.answer(
-                        "Telegram search required session string!", True
+                        "Telegram search required session string!",
+                        True,
                     )
                     return
                 obj.engine, obj.search = userbot, True
@@ -442,12 +461,13 @@ async def cb(_, query: CallbackQuery, obj: MultiSerach):
             obj.type = value
             if obj.mode == "rclone":
                 if not obj.config_path.endswith(".conf") and await aiopath.exists(
-                    "rclone.conf"
+                    "rclone.conf",
                 ):
                     obj.config_path = "rclone.conf"
                 if not obj.config_path:
                     await query.answer(
-                        f"{obj.config_path or 'Rclone.conf'} not exists!", True
+                        f"{obj.config_path or 'Rclone.conf'} not exists!",
+                        True,
                     )
                     return
                 obj.search = True
@@ -473,7 +493,10 @@ async def cb(_, query: CallbackQuery, obj: MultiSerach):
                 return
             tdata = int(data[4]) if data[2] == "foot" else int(data[3])
             msg, buttons = await obj.tele_list.get_content(
-                "list", data[2], tdata, [("Change Query", "change")]
+                "list",
+                data[2],
+                tdata,
+                [("Change Query", "change")],
             )
             if not buttons:
                 await query.answer(msg, True)
@@ -510,5 +533,5 @@ bot.add_handler(
     MessageHandler(
         multi_search,
         filters=command(BotCommands.ListCommand) & CustomFilters.authorized,
-    )
+    ),
 )

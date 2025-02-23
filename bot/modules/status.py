@@ -153,6 +153,6 @@ bot.add_handler(
     MessageHandler(
         mirror_status,
         filters=command(BotCommands.StatusCommand) & CustomFilters.authorized,
-    )
+    ),
 )
 bot.add_handler(CallbackQueryHandler(status_pages, filters=regex("^status")))

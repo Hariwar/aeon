@@ -55,10 +55,16 @@ class VidTools(TaskListener):
         await self.getTag(text)
 
         if fmsg := await UseCheck(self.message, self.isLeech).run(
-            True, daily=True, ml_chek=True, session=True, send_pm=True
+            True,
+            daily=True,
+            ml_chek=True,
+            session=True,
+            send_pm=True,
         ):
             await auto_delete_message(
-                self.message, fmsg, self.message.reply_to_message
+                self.message,
+                fmsg,
+                self.message.reply_to_message,
             )
             return
 
@@ -125,7 +131,8 @@ class VidTools(TaskListener):
 
         if not is_url(self.link):
             await sendMessage(
-                "Send command along with link or by reply to the link!", self.message
+                "Send command along with link or by reply to the link!",
+                self.message,
             )
             self.run_multi(input_list, "", VidTools)
             return
@@ -146,7 +153,8 @@ class VidTools(TaskListener):
         self.name = get_url_name(self.link)
         self.run_multi(input_list, "", VidTools)
         self.editable = await sendMessage(
-            "<i>Checking request, please wait...</i>", self.message
+            "<i>Checking request, please wait...</i>",
+            self.message,
         )
         await sleep(1)
 
@@ -183,11 +191,11 @@ bot.add_handler(
     MessageHandler(
         mirror_vidtools,
         filters=command(BotCommands.MVidCommand) & CustomFilters.authorized,
-    )
+    ),
 )
 bot.add_handler(
     MessageHandler(
         leech_vidtools,
         filters=command(BotCommands.LVidCommand) & CustomFilters.authorized,
-    )
+    ),
 )

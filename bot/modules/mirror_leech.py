@@ -100,7 +100,11 @@ class Mirror(TaskListener):
 
         reply_to = self.message.reply_to_message
         if fmsg := await UseCheck(self.message, self.isLeech).run(
-            True, daily=True, ml_chek=True, session=True, send_pm=True
+            True,
+            daily=True,
+            ml_chek=True,
+            session=True,
+            send_pm=True,
         ):
             self.removeFromSameDir()
             await auto_delete_message(self.message, fmsg, reply_to)
@@ -223,7 +227,8 @@ class Mirror(TaskListener):
         self.link = self.link or get_link(self.message)
 
         self.editable = await sendMessage(
-            "<i>Checking request, please wait...</i>", self.message
+            "<i>Checking request, please wait...</i>",
+            self.message,
         )
         if self.link:
             await sleep(0.5)
@@ -231,10 +236,13 @@ class Mirror(TaskListener):
         if self.link and is_tele_link(self.link):
             try:
                 await intialize_savebot(
-                    self.user_dict.get("session_string"), True, self.user_id
+                    self.user_dict.get("session_string"),
+                    True,
+                    self.user_id,
                 )
                 self.session, reply_to = await get_tg_link_message(
-                    self.link, self.user_id
+                    self.link,
+                    self.user_id,
                 )
             except Exception as e:
                 LOGGER.error(e, exc_info=True)
@@ -250,7 +258,8 @@ class Mirror(TaskListener):
             b_msg.append(f"{self.bulk[0]} -i {len(self.bulk)} {self.options}")
             nextmsg = await sendMessage(" ".join(b_msg), self.message)
             nextmsg = await self.client.get_messages(
-                self.message.chat.id, nextmsg.id
+                self.message.chat.id,
+                nextmsg.id,
             )
             if self.message.from_user:
                 nextmsg.from_user = self.message.from_user
@@ -304,7 +313,8 @@ class Mirror(TaskListener):
 
         if self.isGofile:
             await editMessage(
-                "<i>GoFile upload has been enabled!</i>", self.editable
+                "<i>GoFile upload has been enabled!</i>",
+                self.editable,
             )
             await sleep(0.5)
 
@@ -421,35 +431,37 @@ async def jd_leech(client: Client, message: Message):
 
 bot.add_handler(
     MessageHandler(
-        mirror, filters=command(BotCommands.MirrorCommand) & CustomFilters.authorized
-    )
+        mirror,
+        filters=command(BotCommands.MirrorCommand) & CustomFilters.authorized,
+    ),
 )
 bot.add_handler(
     MessageHandler(
         qb_mirror,
         filters=command(BotCommands.QbMirrorCommand) & CustomFilters.authorized,
-    )
+    ),
 )
 bot.add_handler(
     MessageHandler(
-        leech, filters=command(BotCommands.LeechCommand) & CustomFilters.authorized
-    )
+        leech,
+        filters=command(BotCommands.LeechCommand) & CustomFilters.authorized,
+    ),
 )
 bot.add_handler(
     MessageHandler(
         qb_leech,
         filters=command(BotCommands.QbLeechCommand) & CustomFilters.authorized,
-    )
+    ),
 )
 bot.add_handler(
     MessageHandler(
         jd_mirror,
         filters=command(BotCommands.JdMirrorCommand) & CustomFilters.authorized,
-    )
+    ),
 )
 bot.add_handler(
     MessageHandler(
         jd_leech,
         filters=command(BotCommands.JdLeechCommand) & CustomFilters.authorized,
-    )
+    ),
 )

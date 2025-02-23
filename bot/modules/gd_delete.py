@@ -31,5 +31,5 @@ bot.add_handler(
     MessageHandler(
         deletefile,
         filters=command(BotCommands.DeleteCommand) & CustomFilters.authorized,
-    )
+    ),
 )

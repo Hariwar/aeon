@@ -50,7 +50,8 @@ async def cancel_task(_, message: Message):
             task = task_dict.get(reply_to_id)
         if not task:
             cancelmsg = await sendMessage(
-                f"{message.from_user.mention}, this is not an active task!", message
+                f"{message.from_user.mention}, this is not an active task!",
+                message,
             )
             await auto_delete_message(message, cancelmsg)
             return
@@ -64,7 +65,8 @@ async def cancel_task(_, message: Message):
         user_id not in user_data or not user_data[user_id].get("is_sudo")
     ):
         cancelmsg = await sendMessage(
-            f"{message.from_user.mention}, this task is not for you!", message
+            f"{message.from_user.mention}, this task is not for you!",
+            message,
         )
         await auto_delete_message(message, cancelmsg)
         return
@@ -144,7 +146,8 @@ async def cancel_all_update(_, query: CallbackQuery):
         await query.answer("Not yours!", True)
         return
     if data[2] == "all" and not await CustomFilters.sudo(
-        "", message.reply_to_message
+        "",
+        message.reply_to_message,
     ):
         await query.answer("What are you doing? It's say for sudo!!", True)
         return
@@ -154,7 +157,9 @@ async def cancel_all_update(_, query: CallbackQuery):
             await deleteMessage(message, message.reply_to_message)
         case "back":
             await editMessage(
-                "Choose tasks to cancel.", message, create_cancel_buttons(user_id)
+                "Choose tasks to cancel.",
+                message,
+                create_cancel_buttons(user_id),
             )
         case "ms":
             buttons = ButtonMaker()
@@ -190,12 +195,12 @@ bot.add_handler(
     MessageHandler(
         cancel_task,
         filters=command(BotCommands.CancelTaskCommand) & CustomFilters.authorized,
-    )
+    ),
 )
 bot.add_handler(
     MessageHandler(
         cancell_all_buttons,
         filters=command(BotCommands.CancelAllCommand) & CustomFilters.authorized,
-    )
+    ),
 )
 bot.add_handler(CallbackQueryHandler(cancel_all_update, filters=regex("^canall")))

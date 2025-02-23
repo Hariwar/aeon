@@ -213,7 +213,9 @@ async def get_buttons(key=None, edit_type=None):
 
 
 async def update_buttons(
-    message: Message, key: str | None = None, edit_type: str | None = None
+    message: Message,
+    key: str | None = None,
+    edit_type: str | None = None,
 ):
     msg, image, buttons = await get_buttons(key, edit_type)
     if config_dict["ENABLE_IMAGE_MODE"]:
@@ -240,7 +242,9 @@ async def edit_variable(_, message: Message, omsg: Message, key: str):
             for skey, intvl in list(st.items()):
                 intvl.cancel()
                 Intervals["status"][skey] = setInterval(
-                    value, update_status_message, skey
+                    value,
+                    update_status_message,
+                    skey,
                 )
     elif key == "TORRENT_TIMEOUT":
         value = int(value)
@@ -262,7 +266,7 @@ async def edit_variable(_, message: Message, omsg: Message, key: str):
     elif key == "BASE_URL":
         await (await create_subprocess_exec("pkill", "-9", "-f", "gunicorn")).wait()
         await create_subprocess_shell(
-            f"gunicorn web.wserver:app --bind 0.0.0.0:{environ.get('TORRENT_PORT')} --worker-class gevent"
+            f"gunicorn web.wserver:app --bind 0.0.0.0:{environ.get('TORRENT_PORT')} --worker-class gevent",
         )
     elif key == "TORRENT_PORT":
         value = int(value)
@@ -271,7 +275,7 @@ async def edit_variable(_, message: Message, omsg: Message, key: str):
                 await create_subprocess_exec("pkill", "-9", "-f", "gunicorn")
             ).wait()
             await create_subprocess_shell(
-                f"gunicorn web.wserver:app --bind 0.0.0.0:{value} --worker-class gevent"
+                f"gunicorn web.wserver:app --bind 0.0.0.0:{value} --worker-class gevent",
             )
     elif key == "EXTENSION_FILTER":
         fx = value.split()
@@ -299,7 +303,10 @@ async def edit_variable(_, message: Message, omsg: Message, key: str):
     elif key == "USER_SESSION_STRING":
         await intialize_userbot()
     LOGGER.info(
-        "Change var %s = %s: %s", key, value.__class__.__name__.upper(), value
+        "Change var %s = %s: %s",
+        key,
+        value.__class__.__name__.upper(),
+        value,
     )
     await gather(update_buttons(omsg, "var"), deleteMessage(message))
     if DATABASE_URL:
@@ -318,7 +325,7 @@ async def edit_variable(_, message: Message, omsg: Message, key: str):
                 await create_subprocess_exec("pkill", "-9", "-f", "gunicorn")
             ).wait()
             await create_subprocess_shell(
-                f"gunicorn web.wserver:app --bind 0.0.0.0:{environ.get('TORRENT_PORT')} --worker-class gevent"
+                f"gunicorn web.wserver:app --bind 0.0.0.0:{environ.get('TORRENT_PORT')} --worker-class gevent",
             )
         elif enable_stream and is_stream:
             await (
@@ -363,7 +370,9 @@ async def edit_aria(_, message: Message, omsg: Message, key: str):
             if not download.is_complete:
                 try:
                     await sync_to_async(
-                        aria2.client.change_option, download.gid, {key: value}
+                        aria2.client.change_option,
+                        download.gid,
+                        {key: value},
                     )
                 except Exception as e:
                     LOGGER.error(e)
@@ -397,7 +406,8 @@ async def edit_qbit(_, message: Message, omsg: Message, key: str):
 async def sync_jdownloader():
     if DATABASE_URL and jdownloader.device is not None:
         await gather(
-            sync_to_async(jdownloader.device.system.exit_jd), clean_target("cfg.zip")
+            sync_to_async(jdownloader.device.system.exit_jd),
+            clean_target("cfg.zip"),
         )
         await sleep(2)
         await (
@@ -437,7 +447,12 @@ async def update_private_file(_, message: Message, omsg: Message):
             await gather(clean_target("accounts"), clean_target("rclone_sa"))
             await (
                 await create_subprocess_exec(
-                    "7z", "x", "-o.", "-aoa", "accounts.zip", "accounts/*.json"
+                    "7z",
+                    "x",
+                    "-o.",
+                    "-aoa",
+                    "accounts.zip",
+                    "accounts/*.json",
                 )
             ).wait()
             await (
@@ -517,11 +532,12 @@ async def event_handler(
         return bool(
             user.id == query.from_user.id
             and event.chat.id == chat_id
-            and (event.text or (event.document and document))
+            and (event.text or (event.document and document)),
         )
 
     handler = client.add_handler(
-        MessageHandler(pfunc, filters=create(event_filter)), group=-1
+        MessageHandler(pfunc, filters=create(event_filter)),
+        group=-1,
     )
     while handler_dict[chat_id]:
         await sleep(0.5)
@@ -538,7 +554,8 @@ async def edit_bot_settings(client: Client, query: CallbackQuery):
     handler_dict[message.chat.id] = False
     if data[1] == "close":
         await gather(
-            query.answer(), deleteMessage(message, message.reply_to_message)
+            query.answer(),
+            deleteMessage(message, message.reply_to_message),
         )
     elif data[1] == "back":
         await query.answer()
@@ -551,7 +568,8 @@ async def edit_bot_settings(client: Client, query: CallbackQuery):
         if data[1] == "rebootjd":
             jdownloader.initiate()
             await query.answer(
-                "JDownloader will get restarted. It takes up to 5 sec!", True
+                "JDownloader will get restarted. It takes up to 5 sec!",
+                True,
             )
         elif data[1] == "shutdownjd":
             jdownloader.device = None
@@ -599,7 +617,9 @@ async def edit_bot_settings(client: Client, query: CallbackQuery):
                 for key, intvl in list(st.items()):
                     intvl.cancel()
                     Intervals["status"][key] = setInterval(
-                        value, update_status_message, key
+                        value,
+                        update_status_message,
+                        key,
                     )
         elif data[2] == "ARGO_TOKEN":
             await kill_route()
@@ -634,7 +654,7 @@ async def edit_bot_settings(client: Client, query: CallbackQuery):
                     await create_subprocess_exec("pkill", "-9", "-f", "gunicorn")
                 ).wait()
                 await create_subprocess_shell(
-                    f"gunicorn web.wserver:app --bind 0.0.0.0:{value} --worker-class gevent"
+                    f"gunicorn web.wserver:app --bind 0.0.0.0:{value} --worker-class gevent",
                 )
         elif data[2] == "STREAM_PORT":
             await server.cleanup()
@@ -688,7 +708,9 @@ async def edit_bot_settings(client: Client, query: CallbackQuery):
             if not download.is_complete:
                 try:
                     await sync_to_async(
-                        aria2.client.change_option, download.gid, {data[2]: value}
+                        aria2.client.change_option,
+                        download.gid,
+                        {data[2]: value},
                     )
                 except Exception as e:
                     LOGGER.error(e)
@@ -705,7 +727,9 @@ async def edit_bot_settings(client: Client, query: CallbackQuery):
             if not download.is_complete:
                 try:
                     await sync_to_async(
-                        aria2.client.change_option, download.gid, {data[2]: ""}
+                        aria2.client.change_option,
+                        download.gid,
+                        {data[2]: ""},
                     )
                 except Exception as e:
                     LOGGER.error(e)
@@ -835,7 +859,7 @@ async def edit_bot_settings(client: Client, query: CallbackQuery):
                     await create_subprocess_shell(
                         f"git add -f {filename} \
                                                     && git commit -sm botsettings -q \
-                                                    && git push origin {config_dict['UPSTREAM_BRANCH']} -qf"
+                                                    && git push origin {config_dict['UPSTREAM_BRANCH']} -qf",
                     )
                 ).wait()
             else:
@@ -843,7 +867,7 @@ async def edit_bot_settings(client: Client, query: CallbackQuery):
                     await create_subprocess_shell(
                         f"git rm -r --cached {filename} \
                                                     && git commit -sm botsettings -q \
-                                                    && git push origin {config_dict['UPSTREAM_BRANCH']} -qf"
+                                                    && git push origin {config_dict['UPSTREAM_BRANCH']} -qf",
                     )
                 ).wait()
             LOGGER.info("Push update to UPSTREAM_REPO")
@@ -859,11 +883,13 @@ async def bot_settings(_, message: Message):
 
 bot.add_handler(
     MessageHandler(
-        bot_settings, filters=command(BotCommands.BotSetCommand) & CustomFilters.sudo
-    )
+        bot_settings,
+        filters=command(BotCommands.BotSetCommand) & CustomFilters.sudo,
+    ),
 )
 bot.add_handler(
     CallbackQueryHandler(
-        edit_bot_settings, filters=regex("^botset") & CustomFilters.sudo
-    )
+        edit_bot_settings,
+        filters=regex("^botset") & CustomFilters.sudo,
+    ),
 )

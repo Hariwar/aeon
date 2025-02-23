@@ -84,10 +84,16 @@ class FastDL(TaskListener):
         await self.getTag(text)
 
         if fmsg := await UseCheck(self.message).run(
-            True, True, True, session=True, send_pm=True
+            True,
+            True,
+            True,
+            session=True,
+            send_pm=True,
         ):
             await auto_delete_message(
-                self.message, fmsg, self.message.reply_to_message
+                self.message,
+                fmsg,
+                self.message.reply_to_message,
             )
             return
 
@@ -135,12 +141,14 @@ class FastDL(TaskListener):
 
         if not is_url(self.link) and not is_magnet(self.link):
             await sendMessage(
-                "Send command along with link or by reply to the link!", self.message
+                "Send command along with link or by reply to the link!",
+                self.message,
             )
             return
 
         self.editable = await sendMessage(
-            "<i>Checking request, please wait...</i>", self.message
+            "<i>Checking request, please wait...</i>",
+            self.message,
         )
         upload_path = config_dict["RCLONE_PATH"]
         rjson = await cmd_exec(
@@ -152,7 +160,7 @@ class FastDL(TaskListener):
                 "rclone.conf",
                 upload_path,
                 self.link,
-            ]
+            ],
         )
         if rjson[2] != 0:
             text = (
@@ -188,7 +196,7 @@ class FastDL(TaskListener):
                     "--config",
                     "rclone.conf",
                     f"{upload_path}/{name}",
-                ]
+                ],
             )
             res = loads(typee[0])
             if typee[2] == 0 and res["IsDir"]:
@@ -197,10 +205,12 @@ class FastDL(TaskListener):
             else:
                 text += f"<b>├ Type:</b> {res['MimeType']}\n"
             buttons.button_link(
-                "Cloud Link", await sync_to_async(short_url, url, self.user_id)
+                "Cloud Link",
+                await sync_to_async(short_url, url, self.user_id),
             )
             if stream_link := get_stream_link(
-                res["MimeType"], f"{url_path}/{rutils.quote(name)}"
+                res["MimeType"],
+                f"{url_path}/{rutils.quote(name)}",
             ):
                 buttons.button_link(
                     "Stream Link",
@@ -226,7 +236,8 @@ class FastDL(TaskListener):
             if is_magnet(self.link):
                 tele = TelePost(config_dict["SOURCE_LINK_TITLE"])
                 mag_link = await sync_to_async(
-                    tele.create_post, f"<code>{name}<br></code><br>{self.link}"
+                    tele.create_post,
+                    f"<code>{name}<br></code><br>{self.link}",
                 )
                 buttons.button_link("Source Link", mag_link)
             else:
@@ -248,7 +259,10 @@ class FastDL(TaskListener):
             stime := config_dict["AUTO_DELETE_UPLOAD_MESSAGE_DURATION"]
         ):
             await auto_delete_message(
-                msg, self.message, self.message.reply_to_message, stime=stime
+                msg,
+                self.message,
+                self.message.reply_to_message,
+                stime=stime,
             )
 
 
@@ -258,6 +272,7 @@ async def fastdl(client: Client, message: Message):
 
 bot.add_handler(
     MessageHandler(
-        fastdl, filters=command(BotCommands.FastDlCommand) & CustomFilters.authorized
-    )
+        fastdl,
+        filters=command(BotCommands.FastDlCommand) & CustomFilters.authorized,
+    ),
 )

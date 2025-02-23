@@ -56,7 +56,9 @@ async def countNode(_, message: Message):
         dt_date, dt_time = get_date_time(message)
         msg = await sendMessage(f"<i>Counting:</i> <code>{link}</code>", message)
         name, mime_type, size, files, folders = await sync_to_async(
-            gdCount().count, link, user_id
+            gdCount().count,
+            link,
+            user_id,
         )
         await deleteMessage(msg)
         if "not found" in name or not mime_type:
@@ -110,5 +112,5 @@ bot.add_handler(
     MessageHandler(
         countNode,
         filters=command(BotCommands.CountCommand) & CustomFilters.authorized,
-    )
+    ),
 )

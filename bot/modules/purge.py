@@ -45,5 +45,5 @@ bot.add_handler(
     MessageHandler(
         purge_message,
         filters=command(BotCommands.PurgeCommand) & CustomFilters.owner,
-    )
+    ),
 )

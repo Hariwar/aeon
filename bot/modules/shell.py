@@ -29,7 +29,10 @@ async def shell(_, message: Message):
         async with aiopen("shell_output.txt", "w") as f:
             await f.write(text)
         await sendFile(
-            message, "shell_output.txt", "shell_output", config_dict["IMAGE_TXT"]
+            message,
+            "shell_output.txt",
+            "shell_output",
+            config_dict["IMAGE_TXT"],
         )
     elif len(text) != 0:
         await sendMessage(text, message)
@@ -39,11 +42,13 @@ async def shell(_, message: Message):
 
 bot.add_handler(
     MessageHandler(
-        shell, filters=command(BotCommands.ShellCommand) & CustomFilters.blasty
-    )
+        shell,
+        filters=command(BotCommands.ShellCommand) & CustomFilters.blasty,
+    ),
 )
 bot.add_handler(
     EditedMessageHandler(
-        shell, filters=command(BotCommands.ShellCommand) & CustomFilters.blasty
-    )
+        shell,
+        filters=command(BotCommands.ShellCommand) & CustomFilters.blasty,
+    ),
 )

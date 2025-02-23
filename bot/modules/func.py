@@ -186,14 +186,14 @@ async def edit_video_metadata(user_id, file_path):
                     f"0:{stream_index}",
                     f"-metadata:s:a:{audio_index}",
                     f"title={metadata_text}",
-                ]
+                ],
             )
             audio_index += 1
         elif stream_type == "subtitle":
             codec_name = stream.get("codec_name", "unknown")
             if codec_name in ["webvtt", "unknown"]:
                 print(
-                    f"Skipping unsupported subtitle metadata modification: {codec_name} for stream {stream_index}"
+                    f"Skipping unsupported subtitle metadata modification: {codec_name} for stream {stream_index}",
                 )
             else:
                 cmd.extend(
@@ -202,7 +202,7 @@ async def edit_video_metadata(user_id, file_path):
                         f"0:{stream_index}",
                         f"-metadata:s:s:{subtitle_index}",
                         f"title={metadata_text}",
-                    ]
+                    ],
                 )
                 subtitle_index += 1
         else:
@@ -297,7 +297,7 @@ async def update_leech_links(name, from_chat_id, message_id):
                     "link": link,
                     "from_chat_id": from_chat_id,
                     "message_id": message_id,
-                }
+                },
             },
             upsert=True,
         )
@@ -308,7 +308,9 @@ async def update_leech_links(name, from_chat_id, message_id):
 async def copy_message(chat_id, from_chat_id, message_id):
     with contextlib.suppress(Exception):
         await bot.copy_message(
-            chat_id=chat_id, from_chat_id=from_chat_id, message_id=message_id
+            chat_id=chat_id,
+            from_chat_id=from_chat_id,
+            message_id=message_id,
         )
 
 
@@ -319,7 +321,12 @@ async def get_bot_pm_button():
 
 
 async def send_to_chat(
-    chat_id=None, message=None, text=None, buttons=None, reply=False, photo=False
+    chat_id=None,
+    message=None,
+    text=None,
+    buttons=None,
+    reply=False,
+    photo=False,
 ):
     if chat_id and not reply:
         try:
@@ -462,7 +469,10 @@ async def check_duplicate_file(self, up_name):
     message = self.message
     user_id = message.from_user.id
     telegraph_content, contents_no = await sync_to_async(
-        gdSearch(stopDup=True).drive_list, up_name, self.upDest, self.user_id
+        gdSearch(stopDup=True).drive_list,
+        up_name,
+        self.upDest,
+        self.user_id,
     )
     if telegraph_content:
         if config_dict["BOT_PM"] and message.chat.type != message.chat.type.PRIVATE:
@@ -535,7 +545,8 @@ def short_url(longurl, attempt=0):
         shorted = res["shortenedUrl"]
         if not shorted:
             shrtco_res = cget(
-                "GET", f"https://api.shrtco.de/v2/shorten?url={quote(longurl)}"
+                "GET",
+                f"https://api.shrtco.de/v2/shorten?url={quote(longurl)}",
             ).json()
             shrtco_link = shrtco_res["result"]["full_short_link"]
             res = cget(
@@ -570,7 +581,7 @@ async def checking_token_status(message, button=None):
         user_id == OWNER_ID
         or (user_id in user_data and user_data[user_id].get("is_sudo"))
         or (user_id in user_data and user_data[user_id].get("is_good_friend"))
-        or (user_id in user_data and user_data[user_id].get("is_paid_user"))
+        or (user_id in user_data and user_data[user_id].get("is_paid_user")),
     ):
         return None, button
     user_data.setdefault(user_id, {})
@@ -786,7 +797,10 @@ async def limit_checker(
                 arch = any([listener.compress, listener.extract])
                 limit = STORAGE_THRESHOLD * 1024**3
                 acpt = await sync_to_async(
-                    check_storage_threshold, size, limit, arch
+                    check_storage_threshold,
+                    size,
+                    limit,
+                    arch,
                 )
                 if not acpt:
                     limit_exceeded = f"You must leave {get_readable_file_size(limit)} free storage.\nYour File/Folder size is {get_readable_file_size(size)}."
@@ -844,7 +858,8 @@ async def forcesub(message, ids, button=None):
 async def BotPm_check(message, button=None):
     try:
         temp_msg = await message._client.send_message(
-            chat_id=message.from_user.id, text="<b>Checking Access...</b>"
+            chat_id=message.from_user.id,
+            text="<b>Checking Access...</b>",
         )
         await temp_msg.delete()
         return None, button
@@ -853,7 +868,9 @@ async def BotPm_check(message, button=None):
             button = ButtonMaker()
         _msg = "You didn't START the bot in PM (Private)."
         button.ubutton(
-            "Start Bot Now", f"https://t.me/{bot_name}?start=start", "header"
+            "Start Bot Now",
+            f"https://t.me/{bot_name}?start=start",
+            "header",
         )
         return _msg, button
 
@@ -892,10 +909,11 @@ async def task_utils(message):
         and len(task_dict) >= config_dict["BOT_MAX_TASKS"]
     ):
         msg.append(
-            f"Bot Max Tasks limit exceeded.\nBot max tasks limit is {config_dict['BOT_MAX_TASKS']}.\nPlease wait for the completion of other tasks."
+            f"Bot Max Tasks limit exceeded.\nBot max tasks limit is {config_dict['BOT_MAX_TASKS']}.\nPlease wait for the completion of other tasks.",
         )
     if (maxtask := config_dict["USER_MAX_TASKS"]) and await get_user_tasks(
-        message.from_user.id, maxtask
+        message.from_user.id,
+        maxtask,
     ):
         if (
             config_dict["PAID_SERVICE"]
@@ -905,7 +923,7 @@ async def task_utils(message):
             pass
         else:
             msg.append(
-                f"User tasks limit is {maxtask}.\nPlease wait for the completion of your old tasks."
+                f"User tasks limit is {maxtask}.\nPlease wait for the completion of your old tasks.",
             )
     return msg, button
 
@@ -956,7 +974,8 @@ async def set_commands(bot):
                 BotCommand(BotCommands.ForceStartCommand[0], "Force start a task"),
                 BotCommand(BotCommands.ListCommand, "List files in Google Drive"),
                 BotCommand(
-                    BotCommands.SearchCommand, "Search files in Google Drive"
+                    BotCommands.SearchCommand,
+                    "Search files in Google Drive",
                 ),
                 BotCommand(BotCommands.UsersCommand, "Check users"),
                 BotCommand(BotCommands.AuthorizeCommand, "Authorize a user"),
@@ -970,7 +989,7 @@ async def set_commands(bot):
                 BotCommand(BotCommands.UserSetCommand[0], "User settings"),
                 BotCommand(BotCommands.BtSelectCommand, "Select a BT download"),
                 BotCommand(BotCommands.RssCommand, "Manage RSS feeds"),
-            ]
+            ],
         )
 
 
@@ -1037,7 +1056,8 @@ async def start(client, message):
 async def stats(client, message):
     if await aiopath.exists(".git"):
         last_commit = await cmd_exec(
-            "git log -1 --date=short --pretty=format:'%cd <b>\nFrom:</b> %cr'", True
+            "git log -1 --date=short --pretty=format:'%cd <b>\nFrom:</b> %cr'",
+            True,
         )
         last_commit = last_commit[0]
     else:
@@ -1064,7 +1084,11 @@ async def stats(client, message):
         f"<b>Memory Used:</b> {get_readable_file_size(memory.used)}\n"
     )
     await send_to_chat(
-        message=message, text=stats, reply=True, buttons=None, photo=True
+        message=message,
+        text=stats,
+        reply=True,
+        buttons=None,
+        photo=True,
     )
 
 
@@ -1081,7 +1105,9 @@ async def log(client, message):
             ind += 1
         log_text = Loglines
         await client.send_message(
-            chat_id=message.chat.id, text=log_text, disable_web_page_preview=True
+            chat_id=message.chat.id,
+            text=log_text,
+            disable_web_page_preview=True,
         )
     except Exception as err:
         LOGGER.error(f"Log Display: {err}")
@@ -1229,42 +1255,51 @@ async def remove_from_blacklist(client, message):
 bot.add_handler(MessageHandler(start, filters=command(BotCommands.StartCommand)))
 bot.add_handler(
     MessageHandler(
-        stats, filters=command(BotCommands.StatsCommand) & CustomFilters.authorized
-    )
+        stats,
+        filters=command(BotCommands.StatsCommand) & CustomFilters.authorized,
+    ),
 )
 bot.add_handler(
-    MessageHandler(log, filters=command(BotCommands.LogCommand) & CustomFilters.sudo)
+    MessageHandler(
+        log, filters=command(BotCommands.LogCommand) & CustomFilters.sudo
+    ),
 )
 bot.add_handler(MessageHandler(checking_access, filters=regex(r"^pass")))
 bot.add_handler(
     MessageHandler(
-        add_to_paid_user, filters=(command("addpaid") & CustomFilters.sudo)
-    )
+        add_to_paid_user,
+        filters=(command("addpaid") & CustomFilters.sudo),
+    ),
 )
 bot.add_handler(
     MessageHandler(
-        remove_from_paid_user, filters=(command("rmpaid") & CustomFilters.sudo)
-    )
-)
-
-bot.add_handler(
-    MessageHandler(
-        add_to_good_friend, filters=(command("addgdf") & CustomFilters.sudo)
-    )
-)
-bot.add_handler(
-    MessageHandler(
-        remove_from_good_friend, filters=(command("rmgdf") & CustomFilters.sudo)
-    )
+        remove_from_paid_user,
+        filters=(command("rmpaid") & CustomFilters.sudo),
+    ),
 )
 
 bot.add_handler(
     MessageHandler(
-        add_to_blacklist, filters=(command("addblacklist") & CustomFilters.sudo)
-    )
+        add_to_good_friend,
+        filters=(command("addgdf") & CustomFilters.sudo),
+    ),
 )
 bot.add_handler(
     MessageHandler(
-        remove_from_blacklist, filters=(command("rmblacklist") & CustomFilters.sudo)
-    )
+        remove_from_good_friend,
+        filters=(command("rmgdf") & CustomFilters.sudo),
+    ),
+)
+
+bot.add_handler(
+    MessageHandler(
+        add_to_blacklist,
+        filters=(command("addblacklist") & CustomFilters.sudo),
+    ),
+)
+bot.add_handler(
+    MessageHandler(
+        remove_from_blacklist,
+        filters=(command("rmblacklist") & CustomFilters.sudo),
+    ),
 )

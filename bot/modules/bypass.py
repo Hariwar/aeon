@@ -72,7 +72,9 @@ class Bypass(TaskListener):
 
         if fmsg := await UseCheck(self.message).run(forpremi=True, session=True):
             await auto_delete_message(
-                self.message, fmsg, self.message.reply_to_message
+                self.message,
+                fmsg,
+                self.message.reply_to_message,
             )
             return
 
@@ -138,11 +140,13 @@ class Bypass(TaskListener):
             LOGGER.info("Failed to bypass: %s", self.link)
             if str(err).startswith("ERROR:"):
                 err = str(err).replace(
-                    "trying to generate direct", "when trying bypass"
+                    "trying to generate direct",
+                    "when trying bypass",
                 )
             elif "No direct link function" in str(err):
                 err = str(err).replace(
-                    "No direct link function found for", "Unsupport site for"
+                    "No direct link function found for",
+                    "Unsupport site for",
                 )
             await editMessage(f"{self.tag}, {err}", self.editable)
             return
@@ -161,7 +165,7 @@ class Bypass(TaskListener):
                         [
                             f"<b>{i}.</b> <code>{res['url']}</code>"
                             for i, res in enumerate(contents, 1)
-                        ]
+                        ],
                     )
             elif isinstance(result, tuple):
                 result = f"<code>{result[0]}</code>"
@@ -207,7 +211,9 @@ class Bypass(TaskListener):
             stime := config_dict["AUTO_DELETE_UPLOAD_MESSAGE_DURATION"]
         ):
             await auto_delete_message(
-                self.message, self.message.reply_to_message, stime=stime
+                self.message,
+                self.message.reply_to_message,
+                stime=stime,
             )
 
 
@@ -217,6 +223,7 @@ async def bypass(client: Client, message: Message):
 
 bot.add_handler(
     MessageHandler(
-        bypass, filters=command(BotCommands.BypassCommand) & CustomFilters.authorized
-    )
+        bypass,
+        filters=command(BotCommands.BypassCommand) & CustomFilters.authorized,
+    ),
 )

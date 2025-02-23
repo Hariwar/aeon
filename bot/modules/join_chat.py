@@ -41,5 +41,5 @@ bot.add_handler(
     MessageHandler(
         join_chat,
         filters=command(BotCommands.JoinChatCommand) & CustomFilters.authorized,
-    )
+    ),
 )

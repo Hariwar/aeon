@@ -57,7 +57,8 @@ class YtSelection:
         pfunc = partial(select_format, obj=self)
         handler = self._listener.client.add_handler(
             CallbackQueryHandler(
-                pfunc, filters=regex("^ytq") & user(self._listener.user_id)
+                pfunc,
+                filters=regex("^ytq") & user(self._listener.user_id),
             ),
             group=-1,
         )
@@ -65,7 +66,8 @@ class YtSelection:
             await wait_for(self.event.wait(), timeout=self._timeout)
         except:
             await editMessage(
-                "Timed Out. Task has been cancelled!", self._listener.editable
+                "Timed Out. Task has been cancelled!",
+                self._listener.editable,
             )
             self.qual = None
             self.is_cancelled = True
@@ -307,11 +309,17 @@ class YtDlp(TaskListener):
         await self.getTag(text)
 
         if fmsg := await UseCheck(self.message, self.isLeech).run(
-            True, daily=True, ml_chek=True, session=True, send_pm=True
+            True,
+            daily=True,
+            ml_chek=True,
+            session=True,
+            send_pm=True,
         ):
             self.removeFromSameDir()
             await auto_delete_message(
-                self.message, fmsg, self.message.reply_to_message
+                self.message,
+                fmsg,
+                self.message.reply_to_message,
             )
             return
 
@@ -374,7 +382,8 @@ class YtDlp(TaskListener):
             and (self.multi > 0 or isBulk)
         ):
             await sendMessage(
-                "Upss, multi/bulk mode for premium user only", self.message
+                "Upss, multi/bulk mode for premium user only",
+                self.message,
             )
             return
 
@@ -425,7 +434,8 @@ class YtDlp(TaskListener):
             name, self.link = await _mdisk(self.link, name)
 
         self.editable = await sendMessage(
-            "<i>Checking for <b>YT-DLP</b> link, please wait...</i>", self.message
+            "<i>Checking for <b>YT-DLP</b> link, please wait...</i>",
+            self.message,
         )
         if self.link:
             await sleep(0.5)
@@ -472,7 +482,7 @@ class YtDlp(TaskListener):
                 elif value.lower() == "false":
                     value = False
                 elif value.startswith(("{", "[", "(")) and value.endswith(
-                    ("}", "]", ")")
+                    ("}", "]", ")"),
                 ):
                     value = literal_eval(value)
                 options[key] = value
@@ -511,12 +521,13 @@ async def ytdlleech(client: Client, message: Message):
 
 bot.add_handler(
     MessageHandler(
-        ytdl, filters=command(BotCommands.YtdlCommand) & CustomFilters.authorized
-    )
+        ytdl,
+        filters=command(BotCommands.YtdlCommand) & CustomFilters.authorized,
+    ),
 )
 bot.add_handler(
     MessageHandler(
         ytdlleech,
         filters=command(BotCommands.YtdlLeechCommand) & CustomFilters.authorized,
-    )
+    ),
 )

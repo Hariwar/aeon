@@ -24,7 +24,8 @@ async def broadcast_message(_, message: Message):
     args = message.text.split(maxsplit=1)
     if not reply_to and len(args) == 1:
         await sendMessage(
-            "Please provide message along with command or reply the message", message
+            "Please provide message along with command or reply the message",
+            message,
         )
         return
     users = {x for x in user_data if not user_data[x].get("is_auth")}
@@ -39,7 +40,8 @@ async def broadcast_message(_, message: Message):
         await editMessage(f"<i>Found {count} entry</i>", msg)
         await sleep(1)
         await editMessage(
-            f"<i>Sending brodcase message to {count} users, please wait...</i>", msg
+            f"<i>Sending brodcase message to {count} users, please wait...</i>",
+            msg,
         )
         succ = fail = 0
         for user_id in users:
@@ -68,5 +70,5 @@ bot.add_handler(
     MessageHandler(
         broadcast_message,
         filters=command(BotCommands.BroadcaseCommand) & CustomFilters.owner,
-    )
+    ),
 )

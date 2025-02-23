@@ -54,7 +54,8 @@ async def hasher(_, message: Message):
     try:
         fname, fsize = media.file_name, media.file_size
         outpath = await bot.download_media(
-            message=media, file_name=ospath.join(VtPath, media.file_name)
+            message=media,
+            file_name=ospath.join(VtPath, media.file_name),
         )
     except Exception as e:
         LOGGER.error(e)
@@ -83,7 +84,8 @@ async def hasher(_, message: Message):
     except Exception as e:
         LOGGER.info(e)
         await gather(
-            clean_target("hash"), editMessage("Hashing error. Check Logs.", hmsg)
+            clean_target("hash"),
+            editMessage("Hashing error. Check Logs.", hmsg),
         )
         return
     msg = (
@@ -121,6 +123,7 @@ async def hasher(_, message: Message):
 
 bot.add_handler(
     MessageHandler(
-        hasher, filters=command(BotCommands.HashCommand) & CustomFilters.authorized
-    )
+        hasher,
+        filters=command(BotCommands.HashCommand) & CustomFilters.authorized,
+    ),
 )

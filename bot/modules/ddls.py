@@ -55,11 +55,15 @@ async def generate_ddl(_, message: Message):
         if reply_to and is_file:
             cmsg = await copyMessage(config_dict["LEECH_LOG"], reply_to)
             for mode, link in zip(
-                ["Stream", "Download"], await gen_link(cmsg), strict=False
+                ["Stream", "Download"],
+                await gen_link(cmsg),
+                strict=False,
             ):
                 if link:
                     buttons.button_link(
-                        mode, await sync_to_async(short_url, link, user_id), "header"
+                        mode,
+                        await sync_to_async(short_url, link, user_id),
+                        "header",
                     )
             streams.append(True)
             cmsg = await editMarkup(cmsg, buttons.build_menu(2))
@@ -87,7 +91,7 @@ async def generate_ddl(_, message: Message):
                             get_url_name(link),
                             get_readable_file_size(size),
                             link,
-                        )
+                        ),
                     )
             if streams:
                 if len(streams) == 1:
@@ -129,6 +133,7 @@ async def generate_ddl(_, message: Message):
 
 bot.add_handler(
     MessageHandler(
-        generate_ddl, command(BotCommands.DdlsCommand) & CustomFilters.authorized
-    )
+        generate_ddl,
+        command(BotCommands.DdlsCommand) & CustomFilters.authorized,
+    ),
 )

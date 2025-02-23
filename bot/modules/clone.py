@@ -85,7 +85,9 @@ class Clone(TaskListener):
 
         if fmsg := await UseCheck(self.message).run(session=True):
             await auto_delete_message(
-                self.message, fmsg, self.message.reply_to_message
+                self.message,
+                fmsg,
+                self.message.reply_to_message,
             )
             return
 
@@ -127,7 +129,8 @@ class Clone(TaskListener):
             and (self.multi > 0 or isBulk)
         ):
             await sendMessage(
-                "Upss, multi/bulk mode for premium user only", self.message
+                "Upss, multi/bulk mode for premium user only",
+                self.message,
             )
             return
 
@@ -146,7 +149,8 @@ class Clone(TaskListener):
             LOGGER.info(self.link)
 
         self.editable = await sendMessage(
-            "<i>Checking request, please wait...</i>", self.message
+            "<i>Checking request, please wait...</i>",
+            self.message,
         )
         self.isSharer = is_sharer_link(self.link)
         if self.isSharer:
@@ -164,7 +168,9 @@ class Clone(TaskListener):
             await gather(
                 editMessage(HelpString.CLONE, self.editable),
                 auto_delete_message(
-                    self.message, self.editable, self.message.reply_to_message
+                    self.message,
+                    self.editable,
+                    self.message.reply_to_message,
                 ),
             )
             return
@@ -179,10 +185,12 @@ class Clone(TaskListener):
 
     async def _proceedToClone(self):
         if (is_gdrive_link(self.link) or is_gdrive_id(self.link)) and is_gdrive_id(
-            self.upDest
+            self.upDest,
         ):
             self.name, mime_type, size, files, _ = await sync_to_async(
-                gdCount().count, self.link, self.user_id
+                gdCount().count,
+                self.link,
+                self.user_id,
             )
             if not mime_type:
                 await editMessage(self.name, self.editable)
@@ -200,7 +208,7 @@ class Clone(TaskListener):
                     await gather(
                         deleteMessage(self.editable),
                         self.onDownloadError(
-                            f"Clone limit is {CLONE_LIMIT}GB. File/folder size is {get_readable_file_size(size)}."
+                            f"Clone limit is {CLONE_LIMIT}GB. File/folder size is {get_readable_file_size(size)}.",
                         ),
                     )
                     return
@@ -213,7 +221,7 @@ class Clone(TaskListener):
                     self.editable,
                 )
                 link, size, mime_type, files, folders, dir_id = await sync_to_async(
-                    drive.clone
+                    drive.clone,
                 )
                 await deleteMessage(self.editable)
             else:
@@ -221,17 +229,23 @@ class Clone(TaskListener):
                 async with task_dict_lock:
                     task_dict[self.mid] = GdriveStatus(self, drive, size, gid, "cl")
                 await gather(
-                    deleteMessage(self.editable), sendStatusMessage(self.message)
+                    deleteMessage(self.editable),
+                    sendStatusMessage(self.message),
                 )
                 link, size, mime_type, files, folders, dir_id = await sync_to_async(
-                    drive.clone
+                    drive.clone,
                 )
             if not link:
                 return
             if is_url(link):
                 LOGGER.info("Cloning Done: %s", self.name)
                 await self.onUploadComplete(
-                    link, size, files, folders, mime_type, dir_id=dir_id
+                    link,
+                    size,
+                    files,
+                    folders,
+                    mime_type,
+                    dir_id=dir_id,
                 )
             else:
                 await sendMessage(link, self.message)
@@ -247,7 +261,8 @@ class Clone(TaskListener):
                 config_path = "rclone.conf"
             if not await aiopath.exists(config_path):
                 await editMessage(
-                    f"RClone config: {config_path} not exists!", self.editable
+                    f"RClone config: {config_path} not exists!",
+                    self.editable,
                 )
                 return
 
@@ -271,13 +286,15 @@ class Clone(TaskListener):
                     self.editable,
                 )
                 self.name, mime_type, size, files, folders = await sync_to_async(
-                    gdCount().count, self.link, self.user_id
+                    gdCount().count,
+                    self.link,
+                    self.user_id,
                 )
                 await deleteMessage(self.editable)
                 if CLONE_LIMIT := config_dict["CLONE_LIMIT"]:
                     if size > CLONE_LIMIT * 1024**3:
                         await self.onDownloadError(
-                            f"Clone limit is {CLONE_LIMIT}GB. File/folder size is {get_readable_file_size(size)}."
+                            f"Clone limit is {CLONE_LIMIT}GB. File/folder size is {get_readable_file_size(size)}.",
                         )
                         return
             else:
@@ -326,7 +343,11 @@ class Clone(TaskListener):
             if self.multi <= 1:
                 await sendStatusMessage(self.message)
             link, destination = await RCTransfer.clone(
-                config_path, remote, src_path, mime_type, drive_id
+                config_path,
+                remote,
+                src_path,
+                mime_type,
+                drive_id,
             )
             if not destination:
                 return
@@ -362,7 +383,9 @@ class Clone(TaskListener):
                 destination,
             ]
             res1, res2, res3 = await gather(
-                cmd_exec(cmd1), cmd_exec(cmd2), cmd_exec(cmd3)
+                cmd_exec(cmd1),
+                cmd_exec(cmd2),
+                cmd_exec(cmd3),
             )
             if res1[2] != res2[2] != res3[2] != 0:
                 if res1[2] == -9:
@@ -379,13 +402,20 @@ class Clone(TaskListener):
                 rsize = loads(res3[0])
                 size = rsize["bytes"]
             await self.onUploadComplete(
-                link, size, files, folders, mime_type, destination
+                link,
+                size,
+                files,
+                folders,
+                mime_type,
+                destination,
             )
         else:
             await gather(
                 editMessage(HelpString.CLONE, self.editable),
                 auto_delete_message(
-                    self.message, self.editable, self.message.reply_to_message
+                    self.message,
+                    self.editable,
+                    self.message.reply_to_message,
                 ),
             )
 
@@ -396,6 +426,7 @@ async def clone(client: Client, message: Message):
 
 bot.add_handler(
     MessageHandler(
-        clone, filters=command(BotCommands.CloneCommand) & CustomFilters.authorized
-    )
+        clone,
+        filters=command(BotCommands.CloneCommand) & CustomFilters.authorized,
+    ),
 )

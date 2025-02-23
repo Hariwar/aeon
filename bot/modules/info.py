@@ -169,7 +169,8 @@ class Info:
         pfunc = partial(info_callback, obj=self)
         handler = self._client.add_handler(
             CallbackQueryHandler(
-                pfunc, filters=regex("^info") & user(self._message.from_user.id)
+                pfunc,
+                filters=regex("^info") & user(self._message.from_user.id),
             ),
             group=-1,
         )
@@ -200,13 +201,18 @@ class Info:
     @staticmethod
     @handle_message
     async def _editAnime(
-        caption: str, message: Message, photo: str, reply_markup=None
+        caption: str,
+        message: Message,
+        photo: str,
+        reply_markup=None,
     ):
         return await bot.edit_message_media(
             message.chat.id,
             message.id,
             media=InputMediaPhoto(
-                photo, limit.caption(caption), parse_mode=enums.ParseMode.MARKDOWN
+                photo,
+                limit.caption(caption),
+                parse_mode=enums.ParseMode.MARKDOWN,
             ),
             reply_markup=reply_markup,
         )
@@ -214,7 +220,9 @@ class Info:
     @handle_message
     async def _sendAllPoster(self, media: list[InputMediaPhoto]):
         await self._message.reply_media_group(
-            media, quote=True, disable_notification=True
+            media,
+            quote=True,
+            disable_notification=True,
         )
 
     @staticmethod
@@ -231,7 +239,7 @@ class Info:
     @staticmethod
     async def _get_content(url, is_json=True):
         headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36 Edg/119.0.0.0"
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36 Edg/119.0.0.0",
         }
         async with (
             ClientSession() as session,
@@ -308,13 +316,13 @@ class Info:
                     strict=False,
                 ):
                     self._content["base"][self.status][self.query].append(
-                        (f"{name} ~ <b>{info.rsplit(maxsplit=1)[-1]}</b>", url)
+                        (f"{name} ~ <b>{info.rsplit(maxsplit=1)[-1]}</b>", url),
                     )
         elif self.status == "imdb":
             try:
                 self._content["base"][self.status][self.query] = (
                     await self._get_content(
-                        f"https://v3.sg.media-imdb.com/suggestion/titles/x/{quote_plus(self.query)}.json"
+                        f"https://v3.sg.media-imdb.com/suggestion/titles/x/{quote_plus(self.query)}.json",
                     )
                 ).get("d")
             except Exception as e:
@@ -322,7 +330,7 @@ class Info:
         else:
             self._content["base"][self.status][self.query] = (
                 await self._get_content(
-                    f"https://kuryana.vercel.app/search/q/{quote_plus(self.query)}"
+                    f"https://kuryana.vercel.app/search/q/{quote_plus(self.query)}",
                 )
             )["results"]["dramas"]
 
@@ -339,11 +347,11 @@ class Info:
             name = item.xpath(".//h2//text()")
             title = " ".join(list(filter(lambda x: x.strip(), name)))
             if score := item.xpath(
-                './/div[@class="user_score_chart"]/@data-percent'
+                './/div[@class="user_score_chart"]/@data-percent',
             ):
                 data["rating"] = f"⭐️ <code>{score[0]}</code>"
             data["genre"] = self._list_to_str(
-                item.xpath('.//span[@class="genres"]/a/text()')
+                item.xpath('.//span[@class="genres"]/a/text()'),
             )
             overview = (
                 item.xpath('.//div[@class="overview"][@dir="auto"]/p/text()')
@@ -360,24 +368,27 @@ class Info:
                 )
                 if all([name, act, lnk]):
                     profiles.append(
-                        f'<a href="{self._tmbd_url + lnk[0]}">{name[0]} ({act[0]})</a>'
+                        f'<a href="{self._tmbd_url + lnk[0]}">{name[0]} ({act[0]})</a>',
                     )
             data["profile"] = self._list_to_str(profiles, "normal")
 
             img_poster = config_dict["IMAGE_UNKNOW"]
-            if poster := item.xpath(
-                './/div[contains(@class, "image_content")]//img/@src'
+            if (
+                poster := item.xpath(
+                    './/div[contains(@class, "image_content")]//img/@src',
+                )
+            ) and (
+                poster_path := await self._get_poster(
+                    f"https://image.tmdb.org/t/p/original/{poster[0].rsplit('/', 1)[-1]}",
+                )
             ):
-                if poster_path := await self._get_poster(
-                    f"https://image.tmdb.org/t/p/original/{poster[0].rsplit('/', 1)[-1]}"
-                ):
-                    img_poster = poster_path
+                img_poster = poster_path
             content["poster"] = img_poster
 
             if provider := item.xpath('.//div[@class="provider"]//@alt'):
                 data["provider"] = f"<code>{provider[0]}</code>"
             if trailer := item.xpath(
-                './/a[@class="no_click play_trailer"]/@data-id'
+                './/a[@class="no_click play_trailer"]/@data-id',
             ):
                 content["trailer"] = f"https://youtu.be/{trailer[0]}"
 
@@ -391,7 +402,7 @@ class Info:
         data["cast"] = self._list_to_str(cast, "normal")
 
         if keywords := html.xpath(
-            '//section[@class="keywords right_column"]//li/a/text()'
+            '//section[@class="keywords right_column"]//li/a/text()',
         ):
             data["keywords"] = self._list_to_str(keywords, "tags")
         if season := html.xpath('//section[@class="panel season"]'):
@@ -404,11 +415,11 @@ class Info:
         if item := html.xpath('//section[@class="facts left_column"]'):
             item = item[0]
             if org_name := item.xpath(
-                './/text()[contains(., "Original Name")]/ancestor::p/text()'
+                './/text()[contains(., "Original Name")]/ancestor::p/text()',
             ):
                 data["aka"] = f"<code>{org_name[-1].strip()}</code>"
             if status := item.xpath(
-                './/text()[contains(., "Status")]/ancestor::p//text()'
+                './/text()[contains(., "Status")]/ancestor::p//text()',
             ):
                 data["status"] = f"<code>{status[-1].strip()}</code>"
             if network := item.xpath('.//ul[@class="networks"]'):
@@ -418,19 +429,19 @@ class Info:
                         f'<a href="{self._tmbd_url + lnk[0]}">{net[0].strip(".")}</a>'
                     )
             if type := item.xpath(
-                './/text()[contains(., "Type")]/ancestor::p//text()'
+                './/text()[contains(., "Type")]/ancestor::p//text()',
             ):
                 data["type"] = f"<code>{type[-1].strip()}</code>"
             if lang := item.xpath(
-                './/text()[contains(., "Original Language")]/ancestor::p//text()'
+                './/text()[contains(., "Original Language")]/ancestor::p//text()',
             ):
                 data["language"] = f"#{lang[-1].strip()}"
             if budget := item.xpath(
-                './/text()[contains(., "Budget")]/ancestor::p//text()'
+                './/text()[contains(., "Budget")]/ancestor::p//text()',
             ):
                 data["budget"] = f"<code>{budget[-1].strip()}</code>"
             if venue := item.xpath(
-                './/text()[contains(., "Revenue")]/ancestor::p//text()'
+                './/text()[contains(., "Revenue")]/ancestor::p//text()',
             ):
                 data["venue"] = f"<code>{venue[-1].strip()}</code>"
 
@@ -471,22 +482,22 @@ class Info:
         url = f"https://www.imdb.com/title/tt{content_id}/"
         html = HTML(await self._get_content(url, False))
         imdata = jsonloads(
-            html.xpath('//script[@type="application/ld+json"]//text()')[0]
+            html.xpath('//script[@type="application/ld+json"]//text()')[0],
         )
         text = f"<b>IMDb RESULT</b> ~ {self._tag}\n\n"
         typee = f"~ {imdata['@type']}" if imdata.get("@type") else ""
         year = "N/A"
         if years := html.xpath(
-            '//h1[@data-testid="hero__pageTitle"]/..//ul//text()'
+            '//h1[@data-testid="hero__pageTitle"]/..//ul//text()',
         ):
             year = next(filter(lambda x: re_match(r"\d{4}", x), years))
         text += f"<a href='{url}'><b>{imdata['name']} ({year})</b></a> <b>{typee}</b>\n\n"
         if aliases := html.xpath(
-            '//li[@data-testid="title-details-akas"]//span/text()'
+            '//li[@data-testid="title-details-akas"]//span/text()',
         ):
             text += f"<b>AKA:</b> {self._list_to_str(aliases, 'mono')}\n"
         if runtime := html.xpath(
-            '//li[@data-testid="title-techspec_runtime"]/..//div/text()'
+            '//li[@data-testid="title-techspec_runtime"]/..//div/text()',
         ):
             text += f"<b>Duration:</b> <code>{''.join(runtime)}</code>\n"
         if contenrating := imdata.get("contentRating"):
@@ -494,7 +505,7 @@ class Info:
         if agreerating := imdata.get("aggregateRating"):
             text += f"<b>Rating:</b> ⭐️ <code>{agreerating['ratingValue']}</code> ~ <code>{agreerating['ratingCount']}</code> Vote\n"
         if releases := html.xpath(
-            '//li[@data-testid="title-details-releasedate"]//li/a'
+            '//li[@data-testid="title-details-releasedate"]//li/a',
         ):
             date, url = (
                 releases[0].xpath("./text()")[0],
@@ -506,11 +517,11 @@ class Info:
         if genre := imdata.get("genre"):
             text += f"<b>Genre:</b> {self._list_to_str(genre)}\n"
         if countries := html.xpath(
-            '//li[@data-testid="title-details-origin"]//li/a/text()'
+            '//li[@data-testid="title-details-origin"]//li/a/text()',
         ):
             text += f"<b>Country:</b> {self._list_to_str(countries, 'lang')}\n"
         if languages := html.xpath(
-            '//li[@data-testid="title-details-languages"]//li/a/text()'
+            '//li[@data-testid="title-details-languages"]//li/a/text()',
         ):
             text += f"<b>Language:</b> {self._list_to_str(languages)}\n"
         if directors := imdata.get("director"):
@@ -519,7 +530,7 @@ class Info:
             if creator := self._list_to_str(creators, "person").strip():
                 text += f"<b>Writter:</b> {creator}\n"
         if companies := html.xpath(
-            '//li[@data-testid="title-details-companies"]//li/a/text()'
+            '//li[@data-testid="title-details-companies"]//li/a/text()',
         ):
             text += f"<b>Production:</b> {self._list_to_str(companies, 'mono')}\n"
         if official := html.xpath('//li[@data-testid="details-officialsites"]//li'):
@@ -553,7 +564,7 @@ class Info:
         content = self._content["content"][content_id]
         data = (
             await self._get_content(
-                f"https://kuryana.vercel.app/id/{self._content['mdl'][content_id]}"
+                f"https://kuryana.vercel.app/id/{self._content['mdl'][content_id]}",
             )
         ).get("data", {})
         details, others = data.get("details", {}), data.get("others", {})
@@ -606,8 +617,9 @@ class Info:
             self._content["preposter"].update({content_id: []})
             html = HTML(
                 await self._get_content(
-                    f"{self._tmbd_url}{content_id}/images/posters", False
-                )
+                    f"{self._tmbd_url}{content_id}/images/posters",
+                    False,
+                ),
             )
             for item in html.xpath('//ul[@id="image_menu"]/li'):
                 lang = item.xpath("./a/text()")[0].split(";")[0].strip()
@@ -621,11 +633,12 @@ class Info:
             await self._get_content(
                 f"{self._tmbd_url}{content_id}/images/posters?image_language={code}",
                 False,
-            )
+            ),
         )
         media = []
         for i, img in enumerate(
-            html.xpath('//div[contains(@class, "image_content")]/a/@href')[:10], 1
+            html.xpath('//div[contains(@class, "image_content")]/a/@href')[:10],
+            1,
         ):
             cap = html.xpath('//div[contains(@class, "title ott")]/h2/a/text()')[
                 0
@@ -634,8 +647,9 @@ class Info:
             await downlod_content(img, img_path)
             media.append(
                 InputMediaPhoto(
-                    img_path, f"<b>{i}. {code.upper()}</b> <code>{cap}</code>"
-                )
+                    img_path,
+                    f"<b>{i}. {code.upper()}</b> <code>{cap}</code>",
+                ),
             )
 
         if media:
@@ -762,13 +776,15 @@ class Info:
                 user = await self._client.get_users(user_id)
                 try:
                     image = await self._client.download_media(
-                        user.photo.big_file_id, file_name=f"./{user.id}.png"
+                        user.photo.big_file_id,
+                        file_name=f"./{user.id}.png",
                     )
                 except:
                     image = config_dict["IMAGE_UNKNOW"]
                 try:
                     user_member = await self._client.get_chat_member(
-                        self._message.chat.id, user_id
+                        self._message.chat.id,
+                        user_id,
                     )
                     user_member = (
                         f"<b>├ Status:</b> {user_member.status.name.title()}\n"
@@ -815,7 +831,8 @@ class Info:
                                 movieid = re_findall(r"tt(\d+)", movie.get("id"))[0]
                                 text += f"{count}. <b>{mname} {year} ~ {typee}</b>\n"
                                 buttons.button_data(
-                                    count, f"info|imdbdata|{movieid}"
+                                    count,
+                                    f"info|imdbdata|{movieid}",
                                 )
                         case _:
                             image, bnum = config_dict["IMAGE_MDL"], 5
@@ -851,7 +868,8 @@ class Info:
                 if self.status == "tmdbdata":
                     buttons.button_data("Poster", f"info|preposter|{content_id}")
                 buttons.button_data(
-                    "Summary", f"info|summary|{content_id}|{self.status}"
+                    "Summary",
+                    f"info|summary|{content_id}|{self.status}",
                 )
                 buttons.button_data("<<", f"info|{cb}|home", "footer")
             case "preposter":
@@ -860,7 +878,8 @@ class Info:
                 await self._set_preposter(content_id)
                 for lang, count, mcode in self._content["preposter"][content_id]:
                     buttons.button_data(
-                        f"{lang} ({count})", f"info|poster|{content_id}|{mcode}"
+                        f"{lang} ({count})",
+                        f"info|poster|{content_id}|{mcode}",
                     )
                 buttons.button_data("<<", f"info|tmdbdata|{content_id}", "footer")
             case "summary":
@@ -898,7 +917,10 @@ class Info:
             else editPhoto
         )
         if not await editData(
-            text, self.editable, image, buttons.build_menu(bnum, 3)
+            text,
+            self.editable,
+            image,
+            buttons.build_menu(bnum, 3),
         ):
             await editData(
                 text,
@@ -979,5 +1001,5 @@ bot.add_handler(
     MessageHandler(
         search_info,
         filters=command(BotCommands.InfoCommand) & CustomFilters.authorized,
-    )
+    ),
 )

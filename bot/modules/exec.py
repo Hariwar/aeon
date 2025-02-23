@@ -49,7 +49,10 @@ async def send(msg, message):
         async with aiopen("output.txt", "w", encoding="utf-8") as f:
             await f.write(msg)
         await sendFile(
-            message, "output.txt", "Eval output", config_dict["IMAGE_TXT"]
+            message,
+            "output.txt",
+            "Eval output",
+            config_dict["IMAGE_TXT"],
         )
     else:
         LOGGER.info("OUT: '%s'", msg)
@@ -85,7 +88,8 @@ async def do(func, message: Message):
     env = namespace_of(message)
     chdir(getcwd())
     async with aiopen(
-        ospath.join(getcwd(), "bot", "modules", "temp.txt"), "w"
+        ospath.join(getcwd(), "bot", "modules", "temp.txt"),
+        "w",
     ) as temp:
         await temp.write(body)
     stdout = StringIO()
@@ -143,21 +147,25 @@ async def exechelp(_, message: Message):
 
 bot.add_handler(
     MessageHandler(
-        exechelp, filters=command(BotCommands.ExecHelpCommand) & CustomFilters.owner
-    )
+        exechelp,
+        filters=command(BotCommands.ExecHelpCommand) & CustomFilters.owner,
+    ),
 )
 bot.add_handler(
     MessageHandler(
-        aioexecute, filters=command(BotCommands.AExecCommand) & CustomFilters.owner
-    )
+        aioexecute,
+        filters=command(BotCommands.AExecCommand) & CustomFilters.owner,
+    ),
 )
 bot.add_handler(
     MessageHandler(
-        execute, filters=command(BotCommands.ExecCommand) & CustomFilters.owner
-    )
+        execute,
+        filters=command(BotCommands.ExecCommand) & CustomFilters.owner,
+    ),
 )
 bot.add_handler(
     MessageHandler(
-        clear, filters=command(BotCommands.ClearLocalsCommand) & CustomFilters.owner
-    )
+        clear,
+        filters=command(BotCommands.ClearLocalsCommand) & CustomFilters.owner,
+    ),
 )
