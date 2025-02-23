@@ -33,7 +33,7 @@ class CustomFilters:
                 or user_dict.get("is_sudo")
                 or (config_dict["PREMIUM_MODE"] and user_dict.get("is_premium"))
             )
-            or user_data.get(chat_id, {}).get("is_auth")
+            or user_data.get(chat_id, {}).get("is_auth"),
         )
 
     authorized = create(authorized_user)

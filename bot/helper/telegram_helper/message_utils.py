@@ -91,7 +91,10 @@ def handle_message(func):
 
 
 async def sendingMessage(
-    text: str, message: Message, photo, reply_markup: InlineKeyboardMarkup = None
+    text: str,
+    message: Message,
+    photo,
+    reply_markup: InlineKeyboardMarkup = None,
 ):
     return (
         await sendPhoto(text, message, photo, reply_markup)
@@ -134,13 +137,16 @@ async def sendMedia(
 @handle_message
 async def sendSticker(fileid: str, message: Message, is_misc=False):
     msgsticker = await message.reply_sticker(
-        fileid, quote=True, disable_notification=True
+        fileid,
+        quote=True,
+        disable_notification=True,
     )
     if not is_misc and config_dict["STICKER_DELETE_DURATION"]:
         bot_loop.create_task(
             auto_delete_message(
-                msgsticker, stime=config_dict["STICKER_DELETE_DURATION"]
-            )
+                msgsticker,
+                stime=config_dict["STICKER_DELETE_DURATION"],
+            ),
         )
 
 
@@ -178,7 +184,9 @@ async def editMessage(
     block=True,
 ):
     return await message.edit_text(
-        limit.text(text), reply_markup=reply_markup, disable_web_page_preview=True
+        limit.text(text),
+        reply_markup=reply_markup,
+        disable_web_page_preview=True,
     )
 
 
@@ -193,13 +201,18 @@ async def copyMessage(
         if (markup := message.reply_markup) and markup.inline_keyboard:
             reply_markup = markup
     return await message.copy(
-        chat_id, disable_notification=True, reply_markup=reply_markup
+        chat_id,
+        disable_notification=True,
+        reply_markup=reply_markup,
     )
 
 
 @handle_message
 async def sendPhoto(
-    caption: str, message: Message, photo, reply_markup: InlineKeyboardMarkup = None
+    caption: str,
+    message: Message,
+    photo,
+    reply_markup: InlineKeyboardMarkup = None,
 ):
     return await message.reply_photo(
         photo,
@@ -212,10 +225,14 @@ async def sendPhoto(
 
 @handle_message
 async def editPhoto(
-    caption: str, message: Message, photo, reply_markup: InlineKeyboardMarkup = None
+    caption: str,
+    message: Message,
+    photo,
+    reply_markup: InlineKeyboardMarkup = None,
 ):
     return await message.edit_media(
-        InputMediaPhoto(photo, limit.caption(caption)), reply_markup
+        InputMediaPhoto(photo, limit.caption(caption)),
+        reply_markup,
     )
 
 
@@ -235,15 +252,19 @@ async def sendFile(message: Message, doc: str, caption: str = "", thumb=None):
     if thumb and await downlod_content(thumb, "thumb.png"):
         thumbnail = "thumb.png"
     await message.reply_document(
-        doc, caption=limit.caption(caption), quote=True, thumb=thumbnail
+        doc,
+        caption=limit.caption(caption),
+        quote=True,
+        thumb=thumbnail,
     )
     await gather(
-        *[clean_target(file) for file in [doc, "thumb.png"] if file != "log.txt"]
+        *[clean_target(file) for file in [doc, "thumb.png"] if file != "log.txt"],
     )
 
 
 async def auto_delete_message(
-    *args, stime=config_dict["AUTO_DELETE_MESSAGE_DURATION"]
+    *args,
+    stime=config_dict["AUTO_DELETE_MESSAGE_DURATION"],
 ):
     if stime:
         await sleep(stime)
@@ -265,12 +286,14 @@ async def get_tg_link_message(link: str, user_id: int):
     if link.startswith("https://t.me/"):
         private = False
         msg = re_match(
-            r"https:\/\/t\.me\/(?:c\/)?([^\/]+)(?:\/[^\/]+)?\/([0-9-]+)", link
+            r"https:\/\/t\.me\/(?:c\/)?([^\/]+)(?:\/[^\/]+)?\/([0-9-]+)",
+            link,
         )
     else:
         private = True
         msg = re_match(
-            r"tg:\/\/openmessage\?user_id=([0-9]+)&message_id=([0-9-]+)", link
+            r"tg:\/\/openmessage\?user_id=([0-9]+)&message_id=([0-9-]+)",
+            link,
         )
     chat, msg_id = msg.group(1), msg.group(2)
     async with bot_lock:
@@ -305,7 +328,7 @@ async def get_tg_link_message(link: str, user_id: int):
         private = True
         if not userbot:
             raise TgLinkException(
-                f"User session required for this private link! Try add user session /{BotCommands.UserSetCommand}"
+                f"User session required for this private link! Try add user session /{BotCommands.UserSetCommand}",
             )
     if private:
         if (
@@ -327,7 +350,7 @@ async def get_tg_link_message(link: str, user_id: int):
         return (bot, links) if links else (bot, message)
     raise TgLinkException(
         "Failed getting data from link. Mostly message has been deleted or member chat required"
-        + (f" try /{BotCommands.JoinChatCommand}!" if userbot == save_bot else "!")
+        + (f" try /{BotCommands.JoinChatCommand}!" if userbot == save_bot else "!"),
     )
 
 
@@ -346,7 +369,12 @@ async def update_status_message(sid, force=False):
         is_user = status_dict[sid]["is_user"]
         page_step = status_dict[sid]["page_step"]
         text, buttons = await sync_to_async(
-            get_readable_message, sid, is_user, page_no, status, page_step
+            get_readable_message,
+            sid,
+            is_user,
+            page_no,
+            status,
+            page_step,
         )
         if text is None:
             del status_dict[sid]
@@ -382,7 +410,12 @@ async def sendStatusMessage(msg, user_id=0):
             status = status_dict[sid]["status"]
             page_step = status_dict[sid]["page_step"]
             text, buttons = await sync_to_async(
-                get_readable_message, sid, is_user, page_no, status, page_step
+                get_readable_message,
+                sid,
+                is_user,
+                page_no,
+                status,
+                page_step,
             )
             if text is None:
                 del status_dict[sid]
@@ -392,7 +425,8 @@ async def sendStatusMessage(msg, user_id=0):
                 return
             message = status_dict[sid]["message"]
             _, message = await gather(
-                deleteMessage(message), sendMessage(text, msg, buttons, block=False)
+                deleteMessage(message),
+                sendMessage(text, msg, buttons, block=False),
             )
             if isinstance(message, str):
                 LOGGER.error(
@@ -426,5 +460,7 @@ async def sendStatusMessage(msg, user_id=0):
             }
     if not Intervals["status"].get(sid):
         Intervals["status"][sid] = setInterval(
-            config_dict["STATUS_UPDATE_INTERVAL"], update_status_message, sid
+            config_dict["STATUS_UPDATE_INTERVAL"],
+            update_status_message,
+            sid,
         )
