@@ -140,13 +140,16 @@ async def start(client: Client, message: Message):
         if "_" in data:
             chat_id, message_id, log_id = data.split("_")
             await intialize_savebot(
-                user_data.get(user_id, {}).get("session_string"), True, user_id
+                user_data.get(user_id, {}).get("session_string"),
+                True,
+                user_id,
             )
             async with bot_lock:
                 userbot: Client = bot_dict[user_id]["SAVEBOT"] or bot_dict["SAVEBOT"]
             if not userbot:
                 await sendMessage(
-                    "Required session string or this is not your task!", message
+                    "Required session string or this is not your task!",
+                    message,
                 )
                 return
             msg = await userbot.get_messages(int(chat_id), int(message_id))
@@ -177,12 +180,15 @@ async def start(client: Client, message: Message):
                     )
                     return
                 _, msg = await gather(
-                    deleteMessage(cmsg), client.get_messages(msg.chat.id, msg.id)
+                    deleteMessage(cmsg),
+                    client.get_messages(msg.chat.id, msg.id),
                 )
                 buttons.reset()
                 save_message = config_dict["SAVE_MESSAGE"]
                 for mode, link in zip(
-                    ["Stream", "Download"], await gen_link(msg), strict=False
+                    ["Stream", "Download"],
+                    await gen_link(msg),
+                    strict=False,
                 ):
                     if link:
                         buttons.button_link(
@@ -197,7 +203,7 @@ async def start(client: Client, message: Message):
                 await copyMessage(message.chat.id, msg, markup)
             else:
                 await sendMessage(
-                    f'Required LEECH_LOG to get content <a href="{link}">{media.file_name}</a> directly\n{ext_msg}'
+                    f'Required LEECH_LOG to get content <a href="{link}">{media.file_name}</a> directly\n{ext_msg}',
                 )
             return
         if data == user_dict.get("session_token"):
@@ -244,7 +250,8 @@ async def restart(_, message: Message):
     if (hrestart and nodetails) or (hkill and nodetails):
         LOGGER.info("Heroku details is missing!")
         await sendMessage(
-            "<b>HEROKU_APP_NAME</b> or <b>HEROKU_API_KEY</b> not set!", message
+            "<b>HEROKU_APP_NAME</b> or <b>HEROKU_API_KEY</b> not set!",
+            message,
         )
         return
     if hrestart:
@@ -344,7 +351,8 @@ async def new_member(_, message: Message):
     for user in message.new_chat_members:
         try:
             image = await bot.download_media(
-                user.photo.big_file_id, file_name=f"./{user.id}.png"
+                user.photo.big_file_id,
+                file_name=f"./{user.id}.png",
             )
         except:
             image = config_dict["IMAGE_WEL"]
@@ -385,7 +393,7 @@ async def set_command():
                 BotCommand(
                     match.group(1).lower().strip(),
                     match.group(2).replace(":", "").strip(),
-                )
+                ),
             )
     await bot.set_bot_commands(commands)
 
@@ -433,7 +441,9 @@ async def restart_notification():
                     limit.text(msg)
                     if len(msg) - limit.total > 4090:
                         await send_incompelete_task_message(
-                            cid, msg, buttons.build_menu(2)
+                            cid,
+                            msg,
+                            buttons.build_menu(2),
                         )
                         msg = ""
             if msg:
@@ -464,30 +474,33 @@ async def main():
     bot.add_handler(MessageHandler(start, filters=command(BotCommands.StartCommand)))
     bot.add_handler(
         MessageHandler(
-            log, filters=command(BotCommands.LogCommand) & CustomFilters.owner
-        )
+            log,
+            filters=command(BotCommands.LogCommand) & CustomFilters.owner,
+        ),
     )
     bot.add_handler(
         MessageHandler(
-            restart, filters=command(BotCommands.RestartCommand) & CustomFilters.sudo
-        )
+            restart,
+            filters=command(BotCommands.RestartCommand) & CustomFilters.sudo,
+        ),
     )
     bot.add_handler(
         MessageHandler(
-            ping, filters=command(BotCommands.PingCommand) & CustomFilters.authorized
-        )
+            ping,
+            filters=command(BotCommands.PingCommand) & CustomFilters.authorized,
+        ),
     )
     bot.add_handler(
         MessageHandler(
             bot_help,
             filters=command(BotCommands.HelpCommand) & CustomFilters.authorized,
-        )
+        ),
     )
     bot.add_handler(
         MessageHandler(
             stats,
             filters=command(BotCommands.StatsCommand) & CustomFilters.authorized,
-        )
+        ),
     )
     bot.add_handler(CallbackQueryHandler(help_query, filters=regex("help")))
     bot.add_handler(MessageHandler(new_member, filters=new_chat_members))
