@@ -1261,7 +1261,8 @@ bot.add_handler(
 )
 bot.add_handler(
     MessageHandler(
-        log, filters=command(BotCommands.LogCommand) & CustomFilters.sudo
+        log,
+        filters=command(BotCommands.LogCommand) & CustomFilters.sudo,
     ),
 )
 bot.add_handler(MessageHandler(checking_access, filters=regex(r"^pass")))

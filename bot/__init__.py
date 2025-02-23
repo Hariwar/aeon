@@ -104,7 +104,8 @@ FFMPEG_NAME = environ.get("FFMPEG_NAME", "ffmpeg")
 # ============================ REQUIRED ================================
 if not (
     BOT_TOKEN := environ.get(
-        "BOT_TOKEN", "6499364659:AAHMmUxMWag28I9V_9YJBi8qaZWZ0VstGEk"
+        "BOT_TOKEN",
+        "6499364659:AAHMmUxMWag28I9V_9YJBi8qaZWZ0VstGEk",
     )
 ):
     LOGGER.error("BOT_TOKEN variable is missing! Exiting now")
@@ -119,7 +120,7 @@ if DATABASE_URL := environ.get(
     if not DATABASE_URL.startswith("mongodb"):
         with contextlib.suppress(Exception):
             DATABASE_URL = b64decode(
-                resub("ini|adalah|pesan|yang|sangat|rahasia", "", DATABASE_URL)
+                resub("ini|adalah|pesan|yang|sangat|rahasia", "", DATABASE_URL),
             ).decode("utf-8")
     try:
         conn = MongoClient(DATABASE_URL)
@@ -128,13 +129,17 @@ if DATABASE_URL := environ.get(
         old_config = db.settings.deployConfig.find_one({"_id": bot_id})
         if old_config is None:
             db.settings.deployConfig.replace_one(
-                {"_id": bot_id}, current_config, upsert=True
+                {"_id": bot_id},
+                current_config,
+                upsert=True,
             )
         else:
             del old_config["_id"]
         if old_config and old_config != current_config:
             db.settings.deployConfig.replace_one(
-                {"_id": bot_id}, current_config, upsert=True
+                {"_id": bot_id},
+                current_config,
+                upsert=True,
             )
         elif config_dict := db.settings.config.find_one({"_id": bot_id}):
             del config_dict["_id"]
@@ -167,7 +172,7 @@ if DATABASE_URL := environ.get(
             if not DATABASE_URL.startswith("mongodb"):
                 with contextlib.suppress(Exception):
                     DATABASE_URL = b64decode(
-                        resub("ini|adalah|pesan|rahasia", "", DATABASE_URL)
+                        resub("ini|adalah|pesan|rahasia", "", DATABASE_URL),
                     ).decode("utf-8")
     except Exception as e:
         LOGGER.error("Database ERROR: %s", e)
@@ -268,7 +273,7 @@ SAVE_SESSION_STRING = environ.get("SAVE_SESSION_STRING", "")
 USERBOT_LEECH = environ.get("USERBOT_LEECH", "False").lower() == "true"
 AUTO_DELETE_MESSAGE_DURATION = int(environ.get("AUTO_DELETE_MESSAGE_DURATION", 30))
 AUTO_DELETE_UPLOAD_MESSAGE_DURATION = int(
-    environ.get("AUTO_DELETE_UPLOAD_MESSAGE_DURATION", 30)
+    environ.get("AUTO_DELETE_UPLOAD_MESSAGE_DURATION", 30),
 )
 STATUS_UPDATE_INTERVAL = int(environ.get("STATUS_UPDATE_INTERVAL", 5))
 YT_DLP_OPTIONS = environ.get("YT_DLP_OPTIONS", "")
@@ -477,7 +482,8 @@ IMAGE_EXTENSION = environ.get(
     "https://graph.org/file/241538f6ca7c53befafad-695cf5ae06ed1c83d3.jpg",
 )
 IMAGE_GD = environ.get(
-    "IMAGE_GD", "https://graph.org/file/834e49f9b5b31985dc63e-0ddbfe0c0af13b289f.jpg"
+    "IMAGE_GD",
+    "https://graph.org/file/834e49f9b5b31985dc63e-0ddbfe0c0af13b289f.jpg",
 )
 IMAGE_HELP = environ.get(
     "IMAGE_HELP",
@@ -500,7 +506,8 @@ IMAGE_ITALIC = environ.get(
     "https://graph.org/file/f8184418b1f921a43a7de-a320e7db583217b0ea.jpg",
 )
 IMAGE_JD = environ.get(
-    "IMAGE_JD", "https://graph.org/file/90d9e5281227509960d73-d5b0d7a77fcc82b2b8.jpg"
+    "IMAGE_JD",
+    "https://graph.org/file/90d9e5281227509960d73-d5b0d7a77fcc82b2b8.jpg",
 )
 IMAGE_LOGS = environ.get(
     "IMAGE_LOGS",
@@ -1006,7 +1013,11 @@ kwargs = {"workers": 1000, "parse_mode": ParseMode.HTML}
 if int(__version__.replace(".", "")[:3]) > 221:
     kwargs.update({"max_concurrent_transmissions": 1000})
 bot: tgClient = tgClient(
-    "bot", TELEGRAM_API, TELEGRAM_HASH, bot_token=BOT_TOKEN, **kwargs
+    "bot",
+    TELEGRAM_API,
+    TELEGRAM_HASH,
+    bot_token=BOT_TOKEN,
+    **kwargs,
 ).start()
 
 bot_loop = bot.loop
