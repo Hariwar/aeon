@@ -55,7 +55,7 @@ async def get_metavideo(video_file):
             "-show_format",
             "-show_streams",
             video_file,
-        ]
+        ],
     )
     if rcode != 0:
         LOGGER.error(stderr)
@@ -66,7 +66,11 @@ async def get_metavideo(video_file):
 
 class VidEcxecutor(FFProgress):
     def __init__(
-        self, listener: task.TaskListener, path: str, gid: str, metadata=False
+        self,
+        listener: task.TaskListener,
+        path: str,
+        gid: str,
+        metadata=False,
     ):
         self.data = None
         self.event = Event()
@@ -97,7 +101,10 @@ class VidEcxecutor(FFProgress):
                 LOGGER.info("Added to Queue/Download: %s", self.name)
                 async with task_dict_lock:
                     task_dict[self.listener.mid] = QueueStatus(
-                        self.listener, self.size, self._gid, "dl"
+                        self.listener,
+                        self.size,
+                        self._gid,
+                        "dl",
                     )
                 await self.listener.onDownloadStart()
                 if update:
@@ -164,7 +171,10 @@ class VidEcxecutor(FFProgress):
     async def _send_status(self, status="wait"):
         async with task_dict_lock:
             task_dict[self.listener.mid] = FFMpegStatus(
-                self.listener, self, self._gid, status
+                self.listener,
+                self,
+                self._gid,
+                status,
             )
         if self._metadata and status == "wait":
             await sendStatusMessage(self.listener.message)
@@ -215,7 +225,10 @@ class VidEcxecutor(FFProgress):
         return self._up_path
 
     async def _name_base_dir(
-        self, path, info: str | None = None, multi: bool = False
+        self,
+        path,
+        info: str | None = None,
+        multi: bool = False,
     ):
         base_dir, file_name = ospath.split(path)
         if not self.name or multi:
@@ -276,7 +289,8 @@ class VidEcxecutor(FFProgress):
         if await aiopath.isfile(self._up_path) or self._metadata:
             base_name = self.name if self._metadata else ospath.basename(self.path)
             self._up_path = ospath.join(
-                base_dir, f"{base_name.rsplit('.', 1)[0]} (EXTRACT)"
+                base_dir,
+                f"{base_name.rsplit('.', 1)[0]} (EXTRACT)",
             )
             await makedirs(self._up_path, exist_ok=True)
             base_dir = self._up_path
@@ -293,7 +307,7 @@ class VidEcxecutor(FFProgress):
                     ["audio", "subtitle", "video"],
                     self.data["extension"],
                     strict=False,
-                )
+                ),
             )
 
             def _build_command(stream_data):
@@ -559,7 +573,7 @@ class VidEcxecutor(FFProgress):
 
             if not ref_files and len(sub_files) > 1:
                 ref_files = list(
-                    filter(lambda x: (x, sub_files.remove(x)), sub_files)
+                    filter(lambda x: (x, sub_files.remove(x)), sub_files),
                 )
 
             if not ref_files or not sub_files:
@@ -660,7 +674,7 @@ class VidEcxecutor(FFProgress):
                         "no-info=1",
                         "-bsf:v",
                         "filter_units=remove_types=6",
-                    )
+                    ),
                 )
             elif quality:
                 cmd.extend(("-vf", f"scale={self._qual[quality]}:-2"))
@@ -676,7 +690,7 @@ class VidEcxecutor(FFProgress):
                     self.outfile,
                 )
                 if self.data
-                else [self.outfile]
+                else [self.outfile],
             )
             await self._run_cmd(cmd)
             if self.is_cancel:
@@ -760,7 +774,7 @@ class VidEcxecutor(FFProgress):
                         config_dict["LIB264_PRESET"],
                         "-crf",
                         "25",
-                    )
+                    ),
                 )
             cmd.extend(
                 (
@@ -773,7 +787,7 @@ class VidEcxecutor(FFProgress):
                     "-c:s",
                     "copy",
                     self.outfile,
-                )
+                ),
             )
             await self._run_cmd(cmd)
             if self.is_cancel:
@@ -846,7 +860,8 @@ class VidEcxecutor(FFProgress):
         self.outfile = self._up_path
         if len(self._files) > 1:
             _, size = await gather(
-                self._name_base_dir(self.path), get_path_size(main_video)
+                self._name_base_dir(self.path),
+                get_path_size(main_video),
             )
             self.size += size
             await update_status_message(self.listener.message.chat.id)
@@ -864,7 +879,7 @@ class VidEcxecutor(FFProgress):
                     1 + i
                     for i in range(len(streams))
                     if streams[i]["codec_type"] == "audio"
-                ]
+                ],
             )
             cmd.extend(
                 (
@@ -880,7 +895,7 @@ class VidEcxecutor(FFProgress):
                     "copy",
                     self.outfile,
                     "-y",
-                )
+                ),
             )
             await self._run_cmd(cmd, "direct")
             if self.is_cancel:
@@ -911,7 +926,8 @@ class VidEcxecutor(FFProgress):
         self.outfile = self._up_path
         if len(self._files) > 1:
             _, size = await gather(
-                self._name_base_dir(self.path), get_path_size(main_video)
+                self._name_base_dir(self.path),
+                get_path_size(main_video),
             )
             self.size += size
             cmd = [FFMPEG_NAME, "-hide_banner", "-ignore_unknown", "-y"]
@@ -944,7 +960,7 @@ class VidEcxecutor(FFProgress):
                 )
 
                 cmd.append(
-                    f"subtitles='{self._files[1]}':force_style='FontName={fontname},Shadow=1.5{fontsize}{fontcolour}{boldstyle}'{quality},unsharp,eq=contrast=1.07"
+                    f"subtitles='{self._files[1]}':force_style='FontName={fontname},Shadow=1.5{fontsize}{fontcolour}{boldstyle}'{quality},unsharp,eq=contrast=1.07",
                 )
 
                 if config_dict["VIDTOOLS_FAST_MODE"]:
@@ -956,7 +972,7 @@ class VidEcxecutor(FFProgress):
                             "libx264",
                             "-crf",
                             "24",
-                        )
+                        ),
                     )
                     extra = ["-map", "0:a:?", "-c:a", "copy"]
                 else:
@@ -976,7 +992,7 @@ class VidEcxecutor(FFProgress):
                             "no-info=1",
                             "-bsf:v",
                             "filter_units=remove_types=6",
-                        )
+                        ),
                     )
                     extra = ["-c:a", "aac", "-b:a", "160k", "-map", "0:1"]
                 cmd.extend(["-map", "0:v:0?", "-map", "-0:s", *extra, self.outfile])
@@ -987,7 +1003,7 @@ class VidEcxecutor(FFProgress):
                 for j in range(1, (len(self._files))):
                     cmd.extend(("-map", f"{j}:s"))
                 cmd.extend(
-                    ("-c:v", "copy", "-c:a", "copy", "-c:s", "srt", self.outfile)
+                    ("-c:v", "copy", "-c:a", "copy", "-c:s", "srt", self.outfile),
                 )
             await self._run_cmd(cmd, status)
             if self.is_cancel:
