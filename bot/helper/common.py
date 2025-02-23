@@ -254,11 +254,11 @@ class TaskConfig:
                 )
             if not self.upDest:
                 raise ValueError(
-                    f"No upload destination! Try set default destination for drive or rclone on /{BotCommands.UserSetCommand} or use direct upload with arg <code>-up rcl</code> or <code>-up gdl</code>."
+                    f"No upload destination! Try set default destination for drive or rclone on /{BotCommands.UserSetCommand} or use direct upload with arg <code>-up rcl</code> or <code>-up gdl</code>.",
                 )
             if not is_gdrive_id(self.upDest) and not is_rclone_path(self.upDest):
                 raise ValueError(
-                    "Wrong upload destination! Make sure is corrent destination (rclone path, gdrive path or gdrive id)."
+                    "Wrong upload destination! Make sure is corrent destination (rclone path, gdrive path or gdrive id).",
                 )
             if self.upDest not in ["rcl", "gdl"]:
                 await self.isTokenExists(self.upDest, "up")
@@ -266,16 +266,17 @@ class TaskConfig:
             if self.upDest == "rcl":
                 if self.isClone:
                     if not is_rclone_path(self.link) and not is_gdrive_link(
-                        self.link
+                        self.link,
                     ):
                         raise ValueError(
-                            "You can't clone from different types of tools!"
+                            "You can't clone from different types of tools!",
                         )
                     config_path = self.getConfigPath(self.link)
                 else:
                     config_path = None
                 self.upDest = await RcloneList(self).get_rclone_path(
-                    "rcu", config_path
+                    "rcu",
+                    config_path,
                 )
                 if not is_rclone_path(self.upDest):
                     raise ValueError(self.upDest)
@@ -283,10 +284,11 @@ class TaskConfig:
                 if self.isClone:
                     if not is_gdrive_link(self.link):
                         raise ValueError(
-                            "You can't clone from different types of tools!"
+                            "You can't clone from different types of tools!",
                         )
                     token_path = self.getTokenPath(
-                        self.link, not await aiopath.exists("accounts")
+                        self.link,
+                        not await aiopath.exists("accounts"),
                     )
                 else:
                     token_path = None
@@ -314,11 +316,11 @@ class TaskConfig:
                     user = await self.client.get_chat_member(self.upDest, bot_name)
                     if user.status != ChatMemberStatus.ADMINISTRATOR:
                         raise ValueError(
-                            f"Ups, requires chat admin privileges to this chat <code>{self.upDest}</code> to send leech result!"
+                            f"Ups, requires chat admin privileges to this chat <code>{self.upDest}</code> to send leech result!",
                         )
                 except:
                     raise ValueError(
-                        f"Bot does't have premission to this chat <code>{self.upDest}</code> to send leech result!"
+                        f"Bot does't have premission to this chat <code>{self.upDest}</code> to send leech result!",
                     )
 
             self.upDest = self.upDest or self.user_dict.get("dump_ch", "") or ""
@@ -333,7 +335,9 @@ class TaskConfig:
 
             if is_tele_link(self.thumb):
                 await intialize_savebot(
-                    self.user_dict.get("session_string"), True, self.user_id
+                    self.user_dict.get("session_string"),
+                    True,
+                    self.user_id,
                 )
                 msg = (await get_tg_link_message(self.thumb, self.user_id))[1]
                 self.thumb = (
@@ -372,7 +376,8 @@ class TaskConfig:
         if self.multiTag and self.multiTag not in multi_tags:
             await gather(
                 sendMessage(
-                    f"{self.tag}, Multi Task has been cancelled!", self.message
+                    f"{self.tag}, Multi Task has been cancelled!",
+                    self.message,
                 ),
                 sendStatusMessage(self.message),
             )
@@ -390,7 +395,8 @@ class TaskConfig:
             msg[index + 1] = f"{self.multi - 1}"
             try:
                 nextmsg = await self.client.get_messages(
-                    self.message.chat.id, self.message.reply_to_message_id + 1
+                    self.message.chat.id,
+                    self.message.reply_to_message_id + 1,
                 )
             except Exception as e:
                 LOGGER.error(e)
@@ -433,7 +439,11 @@ class TaskConfig:
         ).newEvent()
 
     async def initBulk(
-        self, input_list: list[str], bulk_start: str, bulk_end: str, obj
+        self,
+        input_list: list[str],
+        bulk_start: str,
+        bulk_end: str,
+        obj,
     ):
         try:
             self.bulk = await extractBulkLinks(self.message, bulk_start, bulk_end)
@@ -449,7 +459,8 @@ class TaskConfig:
             b_msg.append(f"{self.bulk[0]} -i {len(self.bulk)} {self.options}")
             nextmsg = await sendMessage(" ".join(b_msg), self.message)
             nextmsg = await self.client.get_messages(
-                self.message.chat.id, nextmsg.id
+                self.message.chat.id,
+                nextmsg.id,
             )
             nextmsg.from_user = self.message.from_user
             obj(
@@ -505,7 +516,8 @@ class TaskConfig:
                 self.seed = False
                 self.name = self.isRename
                 await aiorename(
-                    ospath.join(dirpath, file), ospath.join(dirpath, self.isRename)
+                    ospath.join(dirpath, file),
+                    ospath.join(dirpath, self.isRename),
                 )
 
     async def preName(self, path: str):
@@ -676,7 +688,9 @@ class TaskConfig:
                 else:
                     up_path = dl_path
                 for dirpath, _, files in await sync_to_async(
-                    walk, dl_path, topdown=False
+                    walk,
+                    dl_path,
+                    topdown=False,
                 ):
                     for file_ in natsorted(files):
                         if is_first_archive_split(file_) or (
@@ -703,7 +717,8 @@ class TaskConfig:
                                 if self.suproc == "cancelled":
                                     return None
                                 self.suproc = await create_subprocess_exec(
-                                    *cmd, stderr=PIPE
+                                    *cmd,
+                                    stderr=PIPE,
                                 )
                             _, stderr = await self.suproc.communicate()
                             code = self.suproc.returncode
@@ -763,7 +778,8 @@ class TaskConfig:
                     up_path = dl_path
         except NotSupportedExtractionArchive:
             LOGGER.info(
-                "Not any valid archive, uploading file as it is. Path: %s", dl_path
+                "Not any valid archive, uploading file as it is. Path: %s",
+                dl_path,
             )
             self.newDir = ""
             up_path = dl_path
@@ -797,7 +813,12 @@ class TaskConfig:
             else:
                 up_path = f"{dl_path}.zip"
             res = await createArchive(
-                self, dl_path, up_path, size, pswd, zipmode == "zfpart"
+                self,
+                dl_path,
+                up_path,
+                size,
+                pswd,
+                zipmode == "zfpart",
             )
             if not res:
                 return None
@@ -822,13 +843,15 @@ class TaskConfig:
                     task_dict[self.mid] = ZipStatus(self, size, gid, fpath)
                 if zipmode == "zeach":
                     archived.append(
-                        await createArchive(self, fpath, dest_path, size, pswd)
+                        await createArchive(self, fpath, dest_path, size, pswd),
                     )
                 elif zipmode == "zpart" or (
                     zipmode == "auto" and int(size) > self.splitSize
                 ):
                     archived.append(
-                        await createArchive(self, fpath, dest_path, size, pswd, True)
+                        await createArchive(
+                            self, fpath, dest_path, size, pswd, True
+                        ),
                     )
                 for item in glob(f"{self.newDir}/*"):
                     await move(item, dirpath)
@@ -838,7 +861,12 @@ class TaskConfig:
         return org_path
 
     async def proceedSplit(
-        self, up_dir: str, m_size: list, o_files: list, size: int, gid: str
+        self,
+        up_dir: str,
+        m_size: list,
+        o_files: list,
+        size: int,
+        gid: str,
     ):
         sp = False
         self.total_size = 0
@@ -853,7 +881,12 @@ class TaskConfig:
                             task_dict[self.mid] = sp
                         LOGGER.info("Splitting (%s): %s", self.splitSize, self.name)
                     res = await split_file(
-                        f_path, f_size, dirpath, self.splitSize, self, sp
+                        f_path,
+                        f_size,
+                        dirpath,
+                        self.splitSize,
+                        self,
+                        sp,
                     )
                     if not res:
                         return None
@@ -894,7 +927,9 @@ class TaskConfig:
                     return await samvid.create(dl_path, True)
                 return None
             for dirpath, _, files in await sync_to_async(
-                walk, dl_path, topdown=False
+                walk,
+                dl_path,
+                topdown=False,
             ):
                 for file_ in natsorted(files):
                     f_path = ospath.join(dirpath, file_)
@@ -904,7 +939,10 @@ class TaskConfig:
                             LOGGER.info("Creating Sample videos: %s", self.name)
                         async with task_dict_lock:
                             task_dict[self.mid] = FFMpegStatus(
-                                self, samvid, gid, "sv"
+                                self,
+                                samvid,
+                                gid,
+                                "sv",
                             )
                         res = await samvid.create(f_path)
                         if not res:
